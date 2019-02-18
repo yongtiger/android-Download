@@ -8,6 +8,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.TextView;
 
 import java.io.File;
 
@@ -16,10 +17,14 @@ import cc.brainbook.study.mydownload.download.HttpURLConnectionDownload;
 public class MainActivity extends AppCompatActivity {
     public static final String DOWNLOAD_PATH = Environment.getExternalStorageDirectory().getAbsolutePath() + "/Downloads/";
 
+    public TextView mTextView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        mTextView = findViewById(R.id.tvTextView);
 
         ///Android 6.0以上版本必须动态设置权限
         if (ContextCompat.checkSelfPermission(MainActivity.this,
@@ -32,8 +37,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void startDownload(View view) {
-        ///实例化HttpURLConnectionDownload，并开始下载
-        HttpURLConnectionDownload httpURLConnectionDownload = new HttpURLConnectionDownload();
+        ///实例化HttpURLConnectionDownload时传入Activity引用，方便操作view
+        HttpURLConnectionDownload httpURLConnectionDownload = new HttpURLConnectionDownload(this);
         httpURLConnectionDownload.download("http://23.237.10.182/ljdy_v1.0.1.apk",
                 "ljdy_v1.0.1.apk",
                 DOWNLOAD_PATH);
