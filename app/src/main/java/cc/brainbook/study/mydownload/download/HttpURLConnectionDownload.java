@@ -70,40 +70,7 @@ public class HttpURLConnectionDownload {
                 }
 
                 /* ------------ [子线程访问UI线程：发送下载结束消息] ------------ */
-
-//                ///子线程访问UI线程方式之Activity.runOnUiThread
-//                ((MainActivity) mContext).runOnUiThread(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        ((MainActivity) mContext).mTextView.setText("DOWNLOAD_COMPLETE");
-//                    }
-//                });
-
-//                ///子线程访问UI线程方式之Handler.post+Runnable
-//                mHandler.post(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        ((MainActivity) mContext).mTextView.setText("DOWNLOAD_COMPLETE");
-//                    }
-//                });
-
-//                ///子线程访问UI线程方式之Handler.sendMessage
-//                //Message msg = new Message();///不推荐！
-//                Message msg = Message.obtain();///推荐！
-//                msg.what = DOWNLOAD_COMPLETE;
-//                Log.d(TAG, "HttpURLConnectionDownload#innerDownload(): mHandler.sendMessage(msg); msg.what = DOWNLOAD_COMPLETE");
-//                mHandler.sendMessage(msg);
-
-                ///子线程访问UI线程方式之Handler.sendEmptyMessage
-                ///适合当消息中无msg.obj，而仅有msg.what的情况
-//                Log.d(TAG, "HttpURLConnectionDownload#innerDownload(): mHandler.sendEmptyMessage(DOWNLOAD_COMPLETE);");
-//                mHandler.sendEmptyMessage(DOWNLOAD_COMPLETE);
-
-                ///子线程访问UI线程方式之Handler.obtainMessage
-                ///适合当消息中有msg.obj，而还有msg.what的情况
-                Log.d(TAG, "HttpURLConnectionDownload#innerDownload(): mHandler.obtainMessage(DOWNLOAD_COMPLETE, null);");
-                mHandler.obtainMessage(DOWNLOAD_COMPLETE, null).sendToTarget();
-
+                onComplete();
             }
         } catch (MalformedURLException e) { ///URL
             e.printStackTrace();
@@ -128,6 +95,44 @@ public class HttpURLConnectionDownload {
         }
     }
 
+    /* ------------ [子线程访问UI线程：发送下载结束消息] ------------ */
+    private void onComplete() {
+
+//                ///子线程访问UI线程方式之Activity.runOnUiThread
+//                ((MainActivity) mContext).runOnUiThread(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        ((MainActivity) mContext).mTextView.setText("DOWNLOAD_COMPLETE");
+//                    }
+//                });
+
+//                ///子线程访问UI线程方式之Handler.post+Runnable
+//                mHandler.post(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        ((MainActivity) mContext).mTextView.setText("DOWNLOAD_COMPLETE");
+//                    }
+//                });
+
+//                ///子线程访问UI线程方式之Handler.sendMessage
+//                //Message msg = new Message();///不推荐！
+//                Message msg = Message.obtain();///推荐！
+//                msg.what = DOWNLOAD_COMPLETE;
+//                Log.d(TAG, "HttpURLConnectionDownload#innerDownload(): mHandler.sendMessage(msg); msg.what = DOWNLOAD_COMPLETE");
+//                mHandler.sendMessage(msg);
+
+        ///子线程访问UI线程方式之Handler.sendEmptyMessage
+        ///适合当消息中无msg.obj，而仅有msg.what的情况
+//                Log.d(TAG, "HttpURLConnectionDownload#innerDownload(): mHandler.sendEmptyMessage(DOWNLOAD_COMPLETE);");
+//                mHandler.sendEmptyMessage(DOWNLOAD_COMPLETE);
+
+        ///子线程访问UI线程方式之Handler.obtainMessage
+        ///适合当消息中有msg.obj，而还有msg.what的情况
+        Log.d(TAG, "HttpURLConnectionDownload#innerDownload(): mHandler.obtainMessage(DOWNLOAD_COMPLETE, null);");
+        mHandler.obtainMessage(DOWNLOAD_COMPLETE, null).sendToTarget();
+
+    }
+
     public void download(@NotNull final String fileUrl,
                          @NotNull final String fileName,
                          @NotNull final String savePath) {
@@ -139,6 +144,7 @@ public class HttpURLConnectionDownload {
                          @NotNull final String fileName,
                          @NotNull final String savePath,
                          final int connectTimeout) {
+
         ///网络访问等耗时操作必须在子线程，否则阻塞主线程
         new Thread(new Runnable() {
             @Override
