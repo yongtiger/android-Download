@@ -21,6 +21,7 @@ import java.net.URL;
 public class HttpURLConnectionDownload {
     private static final String TAG = "TAG";
     private static final int DOWNLOAD_COMPLETE = 1;
+    private static final int DOWNLOAD_PROGRESS = 2;
 
     /**
      * 持有Activity的引用
@@ -78,6 +79,11 @@ public class HttpURLConnectionDownload {
                     finished += length;
                     Log.d(TAG, "HttpURLConnectionDownload#innerDownload(): thread name is: " + Thread.currentThread().getName());
                     Log.d(TAG, "HttpURLConnectionDownload#innerDownload()#finished: " + finished + ", total: " + total);
+
+
+                    /* ------------ [下载进度] ------------ */
+                    mHandler.obtainMessage(DOWNLOAD_PROGRESS, new long[]{finished, total}).sendToTarget();////////////如何控制更新进度周期？
+
 
                     ///停止下载线程
                     if (!isStarted) {
@@ -180,7 +186,19 @@ public class HttpURLConnectionDownload {
 
                     /* ----------- [下载回调接口DownloadCallback] ----------- */
                     if (mDownloadCallback != null) {
-                        mDownloadCallback.complete();
+                        mDownloadCallback.onComplete();
+                    }
+
+
+                    break;
+                /* ------------ [下载进度] ------------ */
+                case DOWNLOAD_PROGRESS:
+
+
+                    /* ----------- [下载进度：回调接口DownloadCallback] ----------- */
+                    if (mDownloadCallback != null) {
+                        long[] l = (long[]) msg.obj;
+                        mDownloadCallback.onProgress(l[0], l[1]);///获取下载进度和文件长度
                     }
 
 

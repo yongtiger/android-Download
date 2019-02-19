@@ -74,8 +74,13 @@ public class MainActivity extends AppCompatActivity implements DownloadCallback 
 
     /* ----------- [下载回调接口DownloadCallback] ----------- */
     @Override
-    public void complete() {
+    public void onComplete() {
         mTextView.setText("DOWNLOAD_COMPLETE");
+    }
+
+    @Override
+    public void onProgress(long progress, long total) {
+        mTextView.setText(progress + " / " + total);
     }
 
 
