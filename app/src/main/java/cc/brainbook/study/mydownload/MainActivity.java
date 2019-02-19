@@ -73,8 +73,6 @@ public class MainActivity extends AppCompatActivity {
         if (httpURLConnectionDownload != null) {
             ///停止下载线程，避免内存泄漏
             httpURLConnectionDownload.isStarted = false;
-            ///注销下载监听器，避免内存泄漏
-            httpURLConnectionDownload.setOnCompleteListener(null);
         }
     }
 }

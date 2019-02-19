@@ -192,7 +192,7 @@ public class HttpURLConnectionDownload {
         void complete();
     }
 
-    private static OnCompleteListener mOnCompleteListener;
+    private OnCompleteListener mOnCompleteListener;
 
     public HttpURLConnectionDownload setOnCompleteListener(OnCompleteListener onCompleteListener) {
         mOnCompleteListener = onCompleteListener;
