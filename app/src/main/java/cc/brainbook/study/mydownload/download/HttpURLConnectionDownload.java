@@ -66,8 +66,12 @@ public class HttpURLConnectionDownload {
                 fileOutputStream = new FileOutputStream(saveFile);
 
                 ///获得文件长度（建议用long类型，int类型最大为2GB）
-                long total = connection.getContentLength();
-                long finished = 0;
+                long totalBytes = connection.getContentLength();
+                ///已经下载完的字节数
+                long finishedBytes = 0;
+                ///控制更新下载进度的周期
+                long currentTimeMillis = System.currentTimeMillis();
+                long currentFinishedBytes = 0;
 
                 ///每次循环读取的内容长度，如为-1表示输入流已经读取结束
                 int length;
@@ -76,13 +80,19 @@ public class HttpURLConnectionDownload {
                 while ((length = bufferedInputStream.read(bytes)) != -1) {
                     ///写入字节缓冲区内容到文件输出流
                     fileOutputStream.write(bytes, 0, length);
-                    finished += length;
+                    finishedBytes += length;
                     Log.d(TAG, "HttpURLConnectionDownload#innerDownload(): thread name is: " + Thread.currentThread().getName());
-                    Log.d(TAG, "HttpURLConnectionDownload#innerDownload()#finished: " + finished + ", total: " + total);
+                    Log.d(TAG, "HttpURLConnectionDownload#innerDownload()#finishedBytes: " + finishedBytes + ", totalBytes: " + totalBytes);
 
 
                     /* ------------ [下载进度] ------------ */
-                    mHandler.obtainMessage(DOWNLOAD_PROGRESS, new long[]{finished, total}).sendToTarget();////////////如何控制更新进度周期？
+                    if (System.currentTimeMillis() - currentTimeMillis > 1000) { ///控制更新下载进度的周期
+                        long diffTimeMillis = System.currentTimeMillis() - currentTimeMillis;   ///下载进度的时间（毫秒）
+                        currentTimeMillis = System.currentTimeMillis();
+                        long diffFinishedBytes = finishedBytes - currentFinishedBytes;  ///下载进度的下载字节数
+                        currentFinishedBytes = finishedBytes;
+                        mHandler.obtainMessage(DOWNLOAD_PROGRESS, new long[]{finishedBytes, totalBytes, diffTimeMillis, diffFinishedBytes}).sendToTarget();
+                    }
 
 
                     ///停止下载线程
@@ -99,12 +109,21 @@ public class HttpURLConnectionDownload {
                 updateUI();
 
 
+            } else {    ///网络连接connection的响应码不为200
+                Log.d(TAG, "innerDownload: ");
+
             }
-        } catch (MalformedURLException e) { ///URL
+        } catch (MalformedURLException e) {
+            ///URL为null
+            ///java.net.MalformedURLException: Protocol not found:
             e.printStackTrace();
         } catch (FileNotFoundException e) { ///FileOutputStream
             e.printStackTrace();
         } catch (IOException e) {   ///HttpURLConnection
+            ///没有网络链接，或
+            ///URL虽然以http://或https://开头，但host不存在
+            ///java.net.UnknownHostException: http://
+            ///java.net.UnknownHostException: Unable to resolve host "aaa": No address associated with hostname
             e.printStackTrace();
         } finally {
             if (connection != null) {
@@ -197,8 +216,9 @@ public class HttpURLConnectionDownload {
 
                     /* ----------- [下载进度：回调接口DownloadCallback] ----------- */
                     if (mDownloadCallback != null) {
+                        ///获取已经下载完的字节数、下载文件的总字节数、下载进度的时间（毫秒）、下载进度的下载字节数
                         long[] l = (long[]) msg.obj;
-                        mDownloadCallback.onProgress(l[0], l[1]);///获取下载进度和文件长度
+                        mDownloadCallback.onProgress(l[0], l[1], l[2], l[3]);
                     }
 
 

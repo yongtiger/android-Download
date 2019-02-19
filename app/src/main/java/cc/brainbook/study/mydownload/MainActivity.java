@@ -79,9 +79,29 @@ public class MainActivity extends AppCompatActivity implements DownloadCallback 
     }
 
     @Override
-    public void onProgress(long progress, long total) {
-        mTextView.setText(progress + " / " + total);
+    public void onProgress(long finishedBytes, long totalBytes, long diffTimeMillis, long diffFinishedBytes) {
+        int progress = (int) (finishedBytes * 100 / totalBytes);
+        long speed = diffFinishedBytes / diffTimeMillis;
+        mTextView.setText(progress + ", " + speed);
     }
 
-
+    /**
+     * Converts number of bytes into proper scale.
+     *
+     * @param bytes number of bytes to be converted.
+     * @return A string that represents the bytes in a proper scale.
+     */
+    public static String getBytesString(long bytes) {
+        String[] quantifiers = new String[] { "KB", "MB", "GB", "TB" };
+        double number = bytes;
+        for (int i = 0;; i++) {
+            if (i >= quantifiers.length) {
+                return "";
+            }
+            number /= 1024;
+            if (number < 512) {
+                return String.format("%.2f", number) + " " + quantifiers[i];
+            }
+        }
+    }
 }
