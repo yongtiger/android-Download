@@ -13,6 +13,8 @@ import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
+import java.io.File;
+
 import cc.brainbook.study.mydownload.download.DownloadCallback;
 import cc.brainbook.study.mydownload.download.HttpURLConnectionDownload;
 
@@ -46,7 +48,6 @@ public class MainActivity extends AppCompatActivity implements DownloadCallback 
 
     }
 
-
     public void startDownload(View view) {
 
 //        httpURLConnectionDownload.download("http://23.237.10.182/ljdy_v1.0.1.apk",
@@ -55,9 +56,11 @@ public class MainActivity extends AppCompatActivity implements DownloadCallback 
 //        httpURLConnectionDownload.download("http://23.237.10.182/smqq.info.rar",
 //                "smqq.info.rar",
 //                DOWNLOAD_PATH);
-        httpURLConnectionDownload.download("http://23.237.10.182/bbs.rar",
-                "bbs.rar",
-                DOWNLOAD_PATH, this);
+        httpURLConnectionDownload.setFileUrl("http://23.237.10.182/bbs.rar")
+                .setFileName("bbs.rar")
+                .setSavePath(new File(DOWNLOAD_PATH))
+                .setDownloadCallback(this)
+                .start();
     }
 
     @Override
@@ -67,12 +70,12 @@ public class MainActivity extends AppCompatActivity implements DownloadCallback 
 
         if (httpURLConnectionDownload != null) {
             ///停止下载线程，避免内存泄漏
-            httpURLConnectionDownload.isStarted = false;
+            httpURLConnectionDownload.stop();
         }
     }
 
 
-    /* ----------- [下载回调接口DownloadCallback] ----------- */
+    /* ----------- [实现下载回调接口DownloadCallback] ----------- */
     @Override
     public void onComplete() {
         mTextView.setText("DOWNLOAD_COMPLETE");
@@ -85,23 +88,4 @@ public class MainActivity extends AppCompatActivity implements DownloadCallback 
         mTextView.setText(progress + ", " + speed);
     }
 
-    /**
-     * Converts number of bytes into proper scale.
-     *
-     * @param bytes number of bytes to be converted.
-     * @return A string that represents the bytes in a proper scale.
-     */
-    public static String getBytesString(long bytes) {
-        String[] quantifiers = new String[] { "KB", "MB", "GB", "TB" };
-        double number = bytes;
-        for (int i = 0;; i++) {
-            if (i >= quantifiers.length) {
-                return "";
-            }
-            number /= 1024;
-            if (number < 512) {
-                return String.format("%.2f", number) + " " + quantifiers[i];
-            }
-        }
-    }
 }

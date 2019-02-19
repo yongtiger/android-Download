@@ -2,6 +2,7 @@ package cc.brainbook.study.mydownload.download;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
@@ -33,20 +34,134 @@ public class HttpURLConnectionDownload {
      * https://blog.csdn.net/changlei_shennan/article/details/44039905
      */
     private Context mContext;
-    public volatile boolean isStarted = false;
+    private volatile boolean isStarted = false;
 
     public HttpURLConnectionDownload(Context context) {
         mContext = context;
     }
 
+
+    /* ----------- [链式set方法设置] ----------- */
+    private String mFileUrl;
+    public HttpURLConnectionDownload setFileUrl(String fileUrl) {
+        mFileUrl = fileUrl;
+        return this;
+    }
+    private String mFileName;
+    public HttpURLConnectionDownload setFileName(String fileName) {
+        mFileName = fileName;
+        return this;
+    }
+    private File mSavePath = Environment.getDownloadCacheDirectory();
+    public HttpURLConnectionDownload setSavePath(File savePath) {
+        mSavePath = savePath;
+        return this;
+    }
+    private int mConnectTimeout = 10000;    ///10秒
+    public HttpURLConnectionDownload setConnectTimeout(int connectTimeout) {
+        mConnectTimeout = connectTimeout;
+        return this;
+    }
+    private int mBufferSize = 1024 * 4; ///4k bytes
+    public HttpURLConnectionDownload setBufferSize(int bufferSize) {
+        mBufferSize = bufferSize;
+        return this;
+    }
+    private int mProgressInterval = 1000;   ///1秒
+    public HttpURLConnectionDownload setProgressInterval(int progressInterval) {
+        mProgressInterval = progressInterval;
+        return this;
+    }
+    private DownloadCallback mDownloadCallback;
+    public HttpURLConnectionDownload setDownloadCallback(DownloadCallback downloadCallback) {
+        mDownloadCallback = downloadCallback;
+        return this;
+    }
+
+    /**
+     * 开始下载
+     */
+    public void start() {
+        Log.d(TAG, "HttpURLConnectionDownload#start(): ");
+        ///避免重复启动下载线程
+        if (!isStarted) {
+            isStarted = true;
+
+            ///网络访问等耗时操作必须在子线程，否则阻塞主线程
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    ///建议innerDownload()方法用参数传递的方式，而不建议直接引用类成员变量！符合解耦原则
+                    innerDownload(mFileUrl, mFileName, mSavePath, mConnectTimeout, mBufferSize, mProgressInterval);
+                }
+            }).start();
+        }
+    }
+
+    /**
+     * 停止下载
+     */
+    public void stop() {
+        Log.d(TAG, "HttpURLConnectionDownload#stop(): ");
+        if (isStarted) {
+            isStarted = false;
+        }
+    }
+
+    /**
+     * 注意：This Handler class should be static or leaks might occur (anonymous android.os.Handler)
+     */
+    @SuppressLint("HandlerLeak")
+    private Handler mHandler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
+                case DOWNLOAD_COMPLETE:
+                    Log.d(TAG, "HttpURLConnectionDownload#handleMessage(): msg.what = DOWNLOAD_COMPLETE");
+
+                    ///下载完成回调接口DownloadCallback
+                    if (mDownloadCallback != null) {
+                        mDownloadCallback.onComplete();
+                    }
+
+                    break;
+                case DOWNLOAD_PROGRESS:
+                    Log.d(TAG, "HttpURLConnectionDownload#handleMessage(): msg.what = DOWNLOAD_PROGRESS");
+
+                    ///下载进度回调接口DownloadCallback
+                    if (mDownloadCallback != null) {
+                        ///获取已经下载完的字节数、下载文件的总字节数、下载进度的时间（毫秒）、下载进度的下载字节数
+                        long[] l = (long[]) msg.obj;
+                        mDownloadCallback.onProgress(l[0], l[1], l[2], l[3]);
+                    }
+
+                    break;
+            }
+            super.handleMessage(msg);
+        }
+    };
+
+    /**
+     * 内部下载过程
+     *
+     * @param fileUrl
+     * @param fileName
+     * @param savePath
+     * @param connectTimeout
+     * @param bufferSize
+     * @param progressInterval
+     */
     private void innerDownload(@NotNull String fileUrl,
                                @NotNull String fileName,
-                               @NotNull String savePath,
-                               int connectTimeout) {
+                               @NotNull File savePath,
+                               int connectTimeout,
+                               int bufferSize,
+                               int progressInterval) {
 
         HttpURLConnection connection = null;
         InputStream inputStream = null;
         FileOutputStream fileOutputStream = null;   ///文件输出流
+
         try {
             ///由下载文件的URL网址建立Http网络连接connection
             URL url = new URL(fileUrl);
@@ -76,7 +191,7 @@ public class HttpURLConnectionDownload {
                 ///每次循环读取的内容长度，如为-1表示输入流已经读取结束
                 int length;
                 ///输入流每次读取的内容（字节缓冲区）
-                byte[] bytes = new byte[1024];
+                byte[] bytes = new byte[bufferSize];
                 while ((length = bufferedInputStream.read(bytes)) != -1) {
                     ///写入字节缓冲区内容到文件输出流
                     fileOutputStream.write(bytes, 0, length);
@@ -84,16 +199,15 @@ public class HttpURLConnectionDownload {
                     Log.d(TAG, "HttpURLConnectionDownload#innerDownload(): thread name is: " + Thread.currentThread().getName());
                     Log.d(TAG, "HttpURLConnectionDownload#innerDownload()#finishedBytes: " + finishedBytes + ", totalBytes: " + totalBytes);
 
-
-                    /* ------------ [下载进度] ------------ */
-                    if (System.currentTimeMillis() - currentTimeMillis > 1000) { ///控制更新下载进度的周期
+                    ///控制更新下载进度的周期
+                    if (System.currentTimeMillis() - currentTimeMillis > progressInterval) {
                         long diffTimeMillis = System.currentTimeMillis() - currentTimeMillis;   ///下载进度的时间（毫秒）
                         currentTimeMillis = System.currentTimeMillis();
                         long diffFinishedBytes = finishedBytes - currentFinishedBytes;  ///下载进度的下载字节数
                         currentFinishedBytes = finishedBytes;
+                        ///发送消息：更新下载进度
                         mHandler.obtainMessage(DOWNLOAD_PROGRESS, new long[]{finishedBytes, totalBytes, diffTimeMillis, diffFinishedBytes}).sendToTarget();
                     }
-
 
                     ///停止下载线程
                     if (!isStarted) {
@@ -104,26 +218,24 @@ public class HttpURLConnectionDownload {
 
                 isStarted = false;
 
+                ///发送消息：下载完成
+                Log.d(TAG, "HttpURLConnectionDownload#innerDownload()#mHandler.obtainMessage(DOWNLOAD_COMPLETE, null).sendToTarget();");
+                mHandler.obtainMessage(DOWNLOAD_COMPLETE, null).sendToTarget();
 
-                /* ------------ [子线程访问UI线程：发送下载结束消息] ------------ */
-                updateUI();
-
-
-            } else {    ///网络连接connection的响应码不为200
-                Log.d(TAG, "innerDownload: ");
-
+            } else {
+                Log.d(TAG, "HttpURLConnectionDownload#innerDownload()#connection的响应码: " + connection.getResponseCode());
+                // todo ...
             }
         } catch (MalformedURLException e) {
-            ///URL为null
-            ///java.net.MalformedURLException: Protocol not found:
+            ///当URL为null或无效网络连接协议时：java.net.MalformedURLException: Protocol not found
             e.printStackTrace();
-        } catch (FileNotFoundException e) { ///FileOutputStream
+        } catch (FileNotFoundException e) {
             e.printStackTrace();
-        } catch (IOException e) {   ///HttpURLConnection
-            ///没有网络链接，或
-            ///URL虽然以http://或https://开头，但host不存在
-            ///java.net.UnknownHostException: http://
-            ///java.net.UnknownHostException: Unable to resolve host "aaa": No address associated with hostname
+        } catch (IOException e) {
+            ///当没有网络链接，或
+            ///URL虽然以http://或https://开头、但host为空或无效host
+            ///     java.net.UnknownHostException: http://
+            ///     java.net.UnknownHostException: Unable to resolve host "aaa": No address associated with hostname
             e.printStackTrace();
         } finally {
             if (connection != null) {
@@ -141,96 +253,5 @@ public class HttpURLConnectionDownload {
             }
         }
     }
-
-
-    /* ------------ [子线程访问UI线程：发送下载结束消息] ------------ */
-    private void updateUI() {
-//        ///子线程访问UI线程方式之Handler.sendMessage
-//        //Message msg = new Message();///不推荐！
-//        Message msg = Message.obtain();///推荐！
-//        msg.what = DOWNLOAD_COMPLETE;
-//        Log.d(TAG, "HttpURLConnectionDownload#updateUI(): mHandler.sendMessage(msg); msg.what = DOWNLOAD_COMPLETE");
-//        mHandler.sendMessage(msg);
-
-        ///子线程访问UI线程方式之Handler.sendEmptyMessage
-        ///适合当消息中无msg.obj，而仅有msg.what的情况
-//                Log.d(TAG, "HttpURLConnectionDownload#updateUI(): mHandler.sendEmptyMessage(DOWNLOAD_COMPLETE);");
-//                mHandler.sendEmptyMessage(DOWNLOAD_COMPLETE);
-
-        ///子线程访问UI线程方式之Handler.obtainMessage
-        ///适合当消息中有msg.obj，而还有msg.what的情况
-        Log.d(TAG, "HttpURLConnectionDownload#updateUI(): mHandler.obtainMessage(DOWNLOAD_COMPLETE, null);");
-        mHandler.obtainMessage(DOWNLOAD_COMPLETE, null).sendToTarget();
-    }
-
-    public void download(@NotNull final String fileUrl,
-                         @NotNull final String fileName,
-                         @NotNull final String savePath,
-                         @NotNull DownloadCallback downloadCallback) {
-
-        download(fileUrl, fileName, savePath, 10000, downloadCallback);
-    }
-
-    public void download(@NotNull final String fileUrl,
-                         @NotNull final String fileName,
-                         @NotNull final String savePath,
-                         final int connectTimeout,
-                         @NotNull DownloadCallback downloadCallback) {
-
-        mDownloadCallback = downloadCallback;
-
-        ///避免重复启动下载线程
-        if (!isStarted) {
-            isStarted = true;
-
-            ///网络访问等耗时操作必须在子线程，否则阻塞主线程
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    innerDownload(fileUrl, fileName, savePath, connectTimeout);
-                }
-            }).start();
-        }
-    }
-
-    ///注意：This Handler class should be static or leaks might occur (anonymous android.os.Handler)
-    @SuppressLint("HandlerLeak")
-    private Handler mHandler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            switch (msg.what) {
-                case DOWNLOAD_COMPLETE:
-                    Log.d(TAG, "HttpURLConnectionDownload#handleMessage(): msg.what = DOWNLOAD_COMPLETE");
-
-
-                    /* ----------- [下载回调接口DownloadCallback] ----------- */
-                    if (mDownloadCallback != null) {
-                        mDownloadCallback.onComplete();
-                    }
-
-
-                    break;
-                /* ------------ [下载进度] ------------ */
-                case DOWNLOAD_PROGRESS:
-
-
-                    /* ----------- [下载进度：回调接口DownloadCallback] ----------- */
-                    if (mDownloadCallback != null) {
-                        ///获取已经下载完的字节数、下载文件的总字节数、下载进度的时间（毫秒）、下载进度的下载字节数
-                        long[] l = (long[]) msg.obj;
-                        mDownloadCallback.onProgress(l[0], l[1], l[2], l[3]);
-                    }
-
-
-                    break;
-            }
-            super.handleMessage(msg);
-        }
-    };
-
-
-    /* ----------- [下载回调接口DownloadCallback] ----------- */
-    private DownloadCallback mDownloadCallback;
-
 
 }
