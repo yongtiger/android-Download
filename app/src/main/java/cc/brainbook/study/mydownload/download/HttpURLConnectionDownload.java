@@ -140,15 +140,19 @@ public class HttpURLConnectionDownload {
 
     public void download(@NotNull final String fileUrl,
                          @NotNull final String fileName,
-                         @NotNull final String savePath) {
+                         @NotNull final String savePath,
+                         @NotNull DownloadCallback downloadCallback) {
 
-        download(fileUrl, fileName, savePath, 10000);
+        download(fileUrl, fileName, savePath, 10000, downloadCallback);
     }
 
     public void download(@NotNull final String fileUrl,
                          @NotNull final String fileName,
                          @NotNull final String savePath,
-                         final int connectTimeout) {
+                         final int connectTimeout,
+                         @NotNull DownloadCallback downloadCallback) {
+
+        mDownloadCallback = downloadCallback;
 
         ///避免重复启动下载线程
         if (!isStarted) {
@@ -174,9 +178,9 @@ public class HttpURLConnectionDownload {
                     Log.d(TAG, "HttpURLConnectionDownload#handleMessage(): msg.what = DOWNLOAD_COMPLETE");
 
 
-                    /* ----------- [下载监听器OnCompleteListener] ----------- */
-                    if (mOnCompleteListener != null) {
-                        mOnCompleteListener.complete();
+                    /* ----------- [下载回调接口DownloadCallback] ----------- */
+                    if (mDownloadCallback != null) {
+                        mDownloadCallback.complete();
                     }
 
 
@@ -187,17 +191,8 @@ public class HttpURLConnectionDownload {
     };
 
 
-    /* ----------- [下载监听器OnCompleteListener] ----------- */
-    public interface OnCompleteListener {
-        void complete();
-    }
-
-    private OnCompleteListener mOnCompleteListener;
-
-    public HttpURLConnectionDownload setOnCompleteListener(OnCompleteListener onCompleteListener) {
-        mOnCompleteListener = onCompleteListener;
-        return this;
-    }
+    /* ----------- [下载回调接口DownloadCallback] ----------- */
+    private DownloadCallback mDownloadCallback;
 
 
 }

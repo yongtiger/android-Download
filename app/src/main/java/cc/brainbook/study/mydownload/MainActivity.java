@@ -13,9 +13,10 @@ import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
+import cc.brainbook.study.mydownload.download.DownloadCallback;
 import cc.brainbook.study.mydownload.download.HttpURLConnectionDownload;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements DownloadCallback {
     private static final String TAG = "TAG";
     public static final String DOWNLOAD_PATH = Environment.getExternalStorageDirectory().getAbsolutePath() + "/Downloads/";
 
@@ -42,13 +43,7 @@ public class MainActivity extends AppCompatActivity {
 
         ///实例化HttpURLConnectionDownload时传入Activity引用，方便操作view
         httpURLConnectionDownload = new HttpURLConnectionDownload(this);
-        ///设置下载完成的监听器
-        httpURLConnectionDownload.setOnCompleteListener(new HttpURLConnectionDownload.OnCompleteListener() {
-            @Override
-            public void complete() {
-                mTextView.setText("DOWNLOAD_COMPLETE");
-            }
-        });
+
     }
 
 
@@ -62,7 +57,7 @@ public class MainActivity extends AppCompatActivity {
 //                DOWNLOAD_PATH);
         httpURLConnectionDownload.download("http://23.237.10.182/bbs.rar",
                 "bbs.rar",
-                DOWNLOAD_PATH);
+                DOWNLOAD_PATH, this);
     }
 
     @Override
@@ -75,4 +70,13 @@ public class MainActivity extends AppCompatActivity {
             httpURLConnectionDownload.isStarted = false;
         }
     }
+
+
+    /* ----------- [下载回调接口DownloadCallback] ----------- */
+    @Override
+    public void complete() {
+        mTextView.setText("DOWNLOAD_COMPLETE");
+    }
+
+
 }
