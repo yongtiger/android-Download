@@ -1,6 +1,6 @@
 package cc.brainbook.study.mydownload.download;
 
-import android.app.Activity;
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Message;
@@ -14,24 +14,28 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.ref.WeakReference;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-
-import cc.brainbook.study.mydownload.MainActivity;
 
 public class HttpURLConnectionDownload {
     private static final String TAG = "TAG";
     private static final int DOWNLOAD_COMPLETE = 1;
 
+    /**
+     * 持有Activity的引用
+     *
+     * 注意：可能带来的内存泄漏问题！
+     * 当Activity退出后，而子线程仍继续运行，此时如果GC，因为子线程仍持有Activity的引用mContext，导致Activity无法被回收，就会发生内存泄漏！
+     * 通用解决方式：在子线程设置停止标志（并且声明为volatile），Activity退出时置位该标志使得子线程终止运行。
+     *
+     * https://blog.csdn.net/changlei_shennan/article/details/44039905
+     */
     private Context mContext;
+    public volatile boolean isStarted = false;
 
     public HttpURLConnectionDownload(Context context) {
         mContext = context;
-        ///注意：外部类成员变量不能初始化为静态内部类实例！此时尚未执行外部类的构造方法，即mContext为null
-        ///所以要在外部类的构造方法中赋值外部类成员变量
-        mHandler = new MyHandler((MainActivity) mContext);
     }
 
     private void innerDownload(@NotNull String fileUrl,
@@ -60,6 +64,10 @@ public class HttpURLConnectionDownload {
                 File saveFile = new File(savePath, fileName);
                 fileOutputStream = new FileOutputStream(saveFile);
 
+                ///获得文件长度（建议用long类型，int类型最大为2GB）
+                long total = connection.getContentLength();
+                long finished = 0;
+
                 ///每次循环读取的内容长度，如为-1表示输入流已经读取结束
                 int length;
                 ///输入流每次读取的内容（字节缓冲区）
@@ -67,10 +75,24 @@ public class HttpURLConnectionDownload {
                 while ((length = bufferedInputStream.read(bytes)) != -1) {
                     ///写入字节缓冲区内容到文件输出流
                     fileOutputStream.write(bytes, 0, length);
+                    finished += length;
+                    Log.d(TAG, "HttpURLConnectionDownload#innerDownload(): thread name is: " + Thread.currentThread().getName());
+                    Log.d(TAG, "HttpURLConnectionDownload#innerDownload()#finished: " + finished + ", total: " + total);
+
+                    ///停止下载线程
+                    if (!isStarted) {
+                        Log.d(TAG, "HttpURLConnectionDownload#innerDownload()#isStarted: " + isStarted);
+                        return;
+                    }
                 }
 
+                isStarted = false;
+
+
                 /* ------------ [子线程访问UI线程：发送下载结束消息] ------------ */
-                onComplete();
+                updateUI();
+
+
             }
         } catch (MalformedURLException e) { ///URL
             e.printStackTrace();
@@ -95,42 +117,25 @@ public class HttpURLConnectionDownload {
         }
     }
 
+
     /* ------------ [子线程访问UI线程：发送下载结束消息] ------------ */
-    private void onComplete() {
-
-//                ///子线程访问UI线程方式之Activity.runOnUiThread
-//                ((MainActivity) mContext).runOnUiThread(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        ((MainActivity) mContext).mTextView.setText("DOWNLOAD_COMPLETE");
-//                    }
-//                });
-
-//                ///子线程访问UI线程方式之Handler.post+Runnable
-//                mHandler.post(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        ((MainActivity) mContext).mTextView.setText("DOWNLOAD_COMPLETE");
-//                    }
-//                });
-
-//                ///子线程访问UI线程方式之Handler.sendMessage
-//                //Message msg = new Message();///不推荐！
-//                Message msg = Message.obtain();///推荐！
-//                msg.what = DOWNLOAD_COMPLETE;
-//                Log.d(TAG, "HttpURLConnectionDownload#innerDownload(): mHandler.sendMessage(msg); msg.what = DOWNLOAD_COMPLETE");
-//                mHandler.sendMessage(msg);
+    private void updateUI() {
+//        ///子线程访问UI线程方式之Handler.sendMessage
+//        //Message msg = new Message();///不推荐！
+//        Message msg = Message.obtain();///推荐！
+//        msg.what = DOWNLOAD_COMPLETE;
+//        Log.d(TAG, "HttpURLConnectionDownload#updateUI(): mHandler.sendMessage(msg); msg.what = DOWNLOAD_COMPLETE");
+//        mHandler.sendMessage(msg);
 
         ///子线程访问UI线程方式之Handler.sendEmptyMessage
         ///适合当消息中无msg.obj，而仅有msg.what的情况
-//                Log.d(TAG, "HttpURLConnectionDownload#innerDownload(): mHandler.sendEmptyMessage(DOWNLOAD_COMPLETE);");
+//                Log.d(TAG, "HttpURLConnectionDownload#updateUI(): mHandler.sendEmptyMessage(DOWNLOAD_COMPLETE);");
 //                mHandler.sendEmptyMessage(DOWNLOAD_COMPLETE);
 
         ///子线程访问UI线程方式之Handler.obtainMessage
         ///适合当消息中有msg.obj，而还有msg.what的情况
-        Log.d(TAG, "HttpURLConnectionDownload#innerDownload(): mHandler.obtainMessage(DOWNLOAD_COMPLETE, null);");
+        Log.d(TAG, "HttpURLConnectionDownload#updateUI(): mHandler.obtainMessage(DOWNLOAD_COMPLETE, null);");
         mHandler.obtainMessage(DOWNLOAD_COMPLETE, null).sendToTarget();
-
     }
 
     public void download(@NotNull final String fileUrl,
@@ -145,58 +150,54 @@ public class HttpURLConnectionDownload {
                          @NotNull final String savePath,
                          final int connectTimeout) {
 
-        ///网络访问等耗时操作必须在子线程，否则阻塞主线程
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                innerDownload(fileUrl, fileName, savePath, connectTimeout);
-            }
-        }).start();
+        ///避免重复启动下载线程
+        if (!isStarted) {
+            isStarted = true;
+
+            ///网络访问等耗时操作必须在子线程，否则阻塞主线程
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    innerDownload(fileUrl, fileName, savePath, connectTimeout);
+                }
+            }).start();
+        }
     }
 
     ///注意：This Handler class should be static or leaks might occur (anonymous android.os.Handler)
-//    private Handler mHandler = new Handler() {
-//        @Override
-//        public void handleMessage(Message msg) {
-//            switch (msg.what) {
-//                case DOWNLOAD_COMPLETE:
-//                    Log.d(TAG, "HttpURLConnectionDownload#handleMessage(): msg.what = DOWNLOAD_COMPLETE");
-//
-//                    ///更新UI线程
-//                    ((MainActivity) mContext).mTextView.setText("DOWNLOAD_COMPLETE");
-//
-//                    break;
-//            }
-//            super.handleMessage(msg);
-//        }
-//    };
-    static class MyHandler extends Handler {
-        WeakReference<Activity> mWeakReference;
-
-        MyHandler(Activity activity) {
-            mWeakReference = new WeakReference<>(activity);
-        }
-
+    @SuppressLint("HandlerLeak")
+    private Handler mHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
-            final Activity activity = mWeakReference.get();
-            if (activity != null) {
-                switch (msg.what) {
-                    case DOWNLOAD_COMPLETE:
-                        Log.d(TAG, "HttpURLConnectionDownload#handleMessage(): msg.what = DOWNLOAD_COMPLETE");
+            switch (msg.what) {
+                case DOWNLOAD_COMPLETE:
+                    Log.d(TAG, "HttpURLConnectionDownload#handleMessage(): msg.what = DOWNLOAD_COMPLETE");
 
-                        ///更新UI线程
-                        ((MainActivity) activity).mTextView.setText("DOWNLOAD_COMPLETE");
 
-                        break;
-                }
+                    /* ----------- [下载监听器OnCompleteListener] ----------- */
+                    if (mOnCompleteListener != null) {
+                        mOnCompleteListener.complete();
+                    }
+
+
+                    break;
             }
+            super.handleMessage(msg);
         }
+    };
+
+
+    /* ----------- [下载监听器OnCompleteListener] ----------- */
+    public interface OnCompleteListener {
+        void complete();
     }
 
-    ///注意：外部类成员变量不能初始化为静态内部类实例！此时尚未执行外部类的构造方法，即mContext为null
-    ///所以要在外部类的构造方法中赋值外部类成员变量
-//    private Handler mHandler = new MyHandler((MainActivity) mContext);
-    private Handler mHandler;
+    private static OnCompleteListener mOnCompleteListener;
+
+    public HttpURLConnectionDownload setOnCompleteListener(OnCompleteListener onCompleteListener) {
+        mOnCompleteListener = onCompleteListener;
+        return this;
+    }
+
 
 }
