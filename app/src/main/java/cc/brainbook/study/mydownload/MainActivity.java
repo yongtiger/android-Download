@@ -20,7 +20,7 @@ import cc.brainbook.study.mydownload.download.HttpURLConnectionDownload;
 
 public class MainActivity extends AppCompatActivity implements DownloadCallback {
     private static final String TAG = "TAG";
-    public static final String DOWNLOAD_PATH = Environment.getExternalStorageDirectory().getAbsolutePath() + "/Downloads/";
+    public static final String DOWNLOAD_PATH = Environment.getExternalStorageDirectory().getAbsolutePath() + "/Download/";
 
     public TextView mTextView;
 
@@ -50,19 +50,19 @@ public class MainActivity extends AppCompatActivity implements DownloadCallback 
 
     public void startDownload(View view) {
 //        httpURLConnectionDownload.setFileUrl("http://23.237.10.182/ljdy_v1.0.1.apk")
-////                .setFileName("ljdy_v1.0.1.apk")
-////                .setSavePath(DOWNLOAD_PATH)
-////                .setDownloadCallback(this)
-//                .start();
-//        httpURLConnectionDownload.setFileUrl("http://23.237.10.182/smqq.info.rar")
-////                .setFileName("smqq.info.rar")
-////                .setSavePath(DOWNLOAD_PATH)
-////                .setDownloadCallback(this)
-//                .start();
-        httpURLConnectionDownload.setFileUrl("http://23.237.10.182/bbs.rar")
-//                .setFileName("bbs.rar")
+//                .setFileName("ljdy_v1.0.1.apk")
 //                .setSavePath(DOWNLOAD_PATH)
 //                .setDownloadCallback(this)
+//                .start();
+//        httpURLConnectionDownload.setFileUrl("http://23.237.10.182/smqq.info.rar")
+//                .setFileName("smqq.info.rar")
+//                .setSavePath(DOWNLOAD_PATH)
+//                .setDownloadCallback(this)
+//                .start();
+        httpURLConnectionDownload.setFileUrl("http://23.237.10.182/bbs.rar")
+                .setFileName("bbs.rar")
+                .setSavePath(DOWNLOAD_PATH)
+                .setDownloadCallback(this)
                 .start();
     }
 

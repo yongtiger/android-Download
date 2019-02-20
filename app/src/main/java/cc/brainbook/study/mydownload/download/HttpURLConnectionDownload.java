@@ -20,6 +20,8 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.UnknownHostException;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
 
 public class HttpURLConnectionDownload {
     private static final String TAG = "TAG";
@@ -65,7 +67,9 @@ public class HttpURLConnectionDownload {
         mConnectTimeout = connectTimeout;
         return this;
     }
-    private int mBufferSize = 1024 * 4; ///4k bytes
+    ///BufferedInputStream的默认缓冲区大小是8192字节。当每次读取数据量接近或远超这个值时，两者效率就没有明显差别了
+    ///https://blog.csdn.net/xisuo002/article/details/78742631
+    private int mBufferSize = 1024; ///1k bytes
     public HttpURLConnectionDownload setBufferSize(int bufferSize) {
         mBufferSize = bufferSize;
         return this;
@@ -177,6 +181,7 @@ public class HttpURLConnectionDownload {
 
         HttpURLConnection connection = null;
         InputStream inputStream = null;
+        BufferedInputStream bufferedInputStream = null;
         FileOutputStream fileOutputStream = null;   ///文件输出流
 
         try {
@@ -200,11 +205,13 @@ public class HttpURLConnectionDownload {
                 ///获得网络连接connection的输入流对象
                 inputStream = connection.getInputStream();
                 ///由输入流对象创建缓冲输入流对象（比inputStream效率要高）
-                BufferedInputStream bufferedInputStream = new BufferedInputStream(inputStream);
+                ///https://blog.csdn.net/hfreeman2008/article/details/49174499
+                bufferedInputStream = new BufferedInputStream(inputStream);
 
                 ///创建文件输出流对象
                 File saveFile = new File(savePath, fileName);
                 fileOutputStream = new FileOutputStream(saveFile);
+                FileChannel channel = fileOutputStream.getChannel();
 
                 ///获得文件长度（建议用long类型，int类型最大为2GB）
                 long totalBytes = connection.getContentLength();
@@ -217,10 +224,14 @@ public class HttpURLConnectionDownload {
                 ///每次循环读取的内容长度，如为-1表示输入流已经读取结束
                 int length;
                 ///输入流每次读取的内容（字节缓冲区）
+                ///BufferedInputStream的默认缓冲区大小是8192字节。当每次读取数据量接近或远超这个值时，两者效率就没有明显差别了
+                ///https://blog.csdn.net/xisuo002/article/details/78742631
                 byte[] bytes = new byte[bufferSize];
                 while ((length = bufferedInputStream.read(bytes)) != -1) {
                     ///写入字节缓冲区内容到文件输出流
-                    fileOutputStream.write(bytes, 0, length);
+                    ///Wrap a byte array into a buffer
+                    ByteBuffer buf = ByteBuffer.wrap(bytes, 0, length);
+                    channel.write(buf);
                     finishedBytes += length;
                     Log.d(TAG, "HttpURLConnectionDownload#innerDownload(): thread name is: " + Thread.currentThread().getName());
                     Log.d(TAG, "HttpURLConnectionDownload#innerDownload()#finishedBytes: " + finishedBytes + ", totalBytes: " + totalBytes);
@@ -250,7 +261,7 @@ public class HttpURLConnectionDownload {
 
             } else {
                 Log.d(TAG, "HttpURLConnectionDownload#innerDownload()#connection的响应码: " + connection.getResponseCode());
-                // todo ...
+                throw new DownloadException(DownloadException.EXCEPTION_IO_EXCEPTION, "The connection response code is " + connection.getResponseCode());
             }
         } catch (MalformedURLException e) {
             ///当URL为null或无效网络连接协议时：java.net.MalformedURLException: Protocol not found
@@ -268,17 +279,20 @@ public class HttpURLConnectionDownload {
         } catch (IOException e) {
             ///当没有网络链接
             e.printStackTrace();
-            throw new DownloadException(DownloadException.EXCEPTION_IO_EXCEPTION, "IO error.", e);
+            throw new DownloadException(DownloadException.EXCEPTION_IO_EXCEPTION, "IOException expected.", e);
         } finally {
             if (connection != null) {
                 connection.disconnect();
             }
             try {
-                if (inputStream != null) {
-                    inputStream.close();
-                }
                 if (fileOutputStream != null) {
                     fileOutputStream.close();
+                }
+                if (bufferedInputStream != null) {
+                    bufferedInputStream.close();
+                }
+                if (inputStream != null) {
+                    inputStream.close();
                 }
             } catch (IOException e) {
                 e.printStackTrace();
