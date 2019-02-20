@@ -20,7 +20,7 @@ public class MainActivity extends AppCompatActivity implements DownloadCallback 
 
     public TextView mTextView;
 
-    private ThreadRunnableDownload httpURLConnectionDownload;
+    private DownloadTask downloadTask;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,13 +39,13 @@ public class MainActivity extends AppCompatActivity implements DownloadCallback 
                     1);
         }
 
-        ///实例化HttpURLConnectionDownload时传入Activity引用，方便操作view
-        httpURLConnectionDownload = new ThreadRunnableDownload(this);
+        ///实例化DownloadTask时传入Activity引用，方便操作view
+        downloadTask = new DownloadTask(this);
 
     }
 
     public void startDownload(View view) {
-//        httpURLConnectionDownload.setFileUrl("http://23.237.10.182/ljdy_v1.0.1.apk")
+//        downloadTask.setFileUrl("http://23.237.10.182/ljdy_v1.0.1.apk")
 //                .setFileName("ljdy_v1.0.1.apk")
 //                .setSavePath(DOWNLOAD_PATH)
 //                .setDownloadCallback(this)
@@ -58,21 +58,8 @@ public class MainActivity extends AppCompatActivity implements DownloadCallback 
 //                    }
 //                })
 //                .start();
-        httpURLConnectionDownload.setFileUrl("http://23.237.10.182/smqq.info.rar")
-                .setFileName("smqq.info.rar")
-                .setSavePath(DOWNLOAD_PATH)
-                .setDownloadCallback(this)
-                .setOnProgressListener(new OnProgressListener() {
-                    @Override
-                    public void onProgress(FileInfo fileInfo) {
-                        int progress = (int) (fileInfo.getFinishedBytes() * 100 / fileInfo.getFileSize());
-                        long speed = fileInfo.getDiffFinishedBytes() / fileInfo.getDiffTimeMillis();
-                        mTextView.setText(progress + ", " + speed);
-                    }
-                })
-                .start();
-//        httpURLConnectionDownload.setFileUrl("http://23.237.10.182/bbs.rar")
-//                .setFileName("bbs.rar")
+//        downloadTask.setFileUrl("http://23.237.10.182/smqq.info.rar")
+//                .setFileName("smqq.info.rar")
 //                .setSavePath(DOWNLOAD_PATH)
 //                .setDownloadCallback(this)
 //                .setOnProgressListener(new OnProgressListener() {
@@ -84,6 +71,19 @@ public class MainActivity extends AppCompatActivity implements DownloadCallback 
 //                    }
 //                })
 //                .start();
+        downloadTask.setFileUrl("http://23.237.10.182/bbs.rar")
+                .setFileName("bbs.rar")
+                .setSavePath(DOWNLOAD_PATH)
+                .setDownloadCallback(this)
+                .setOnProgressListener(new OnProgressListener() {
+                    @Override
+                    public void onProgress(FileInfo fileInfo) {
+                        int progress = (int) (fileInfo.getFinishedBytes() * 100 / fileInfo.getFileSize());
+                        long speed = fileInfo.getDiffFinishedBytes() / fileInfo.getDiffTimeMillis();
+                        mTextView.setText(progress + ", " + speed);
+                    }
+                })
+                .start();
     }
 
     @Override
@@ -91,9 +91,9 @@ public class MainActivity extends AppCompatActivity implements DownloadCallback 
         Log.d(TAG, "============== MainActivity#onDestroy(): ==============");
         super.onDestroy();
 
-        if (httpURLConnectionDownload != null) {
+        if (downloadTask != null) {
             ///停止下载线程，避免内存泄漏
-            httpURLConnectionDownload.stop();
+            downloadTask.stop();
         }
     }
 
@@ -101,7 +101,6 @@ public class MainActivity extends AppCompatActivity implements DownloadCallback 
     /* ----------- [实现下载回调接口DownloadCallback] ----------- */
     @Override
     public void onComplete(FileInfo fileInfo) {
-//        mTextView.setText("DOWNLOAD_COMPLETE");
         ///下载文件URL
         String fileUrl = fileInfo.getFileUrl();
         ///下载文件名
