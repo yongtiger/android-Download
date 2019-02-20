@@ -26,14 +26,14 @@ public class DownloadThread extends Thread {
 
     private FileInfo mFileInfo;
     private Config mConfig;
-    private OnProgressListener mOnProgressListener;
+    private boolean mHasOnProgressListener;
     private Handler mHandler;
 
-    public DownloadThread(FileInfo fileInfo, Config config, OnProgressListener onProgressListener, Handler handler) {
+    public DownloadThread(FileInfo fileInfo, Config config, Handler handler, boolean hasOnProgressListener) {
         this.mFileInfo = fileInfo;
         this.mConfig = config;
-        this.mOnProgressListener = onProgressListener;
         this.mHandler = handler;
+        this.mHasOnProgressListener = hasOnProgressListener;
     }
 
     @Override
@@ -97,7 +97,7 @@ public class DownloadThread extends Thread {
                     Log.d(TAG, "DownloadTask#innerDownload(): thread name is: " + Thread.currentThread().getName());
                     Log.d(TAG, "DownloadTask#innerDownload()#finishedBytes: " + mFileInfo.getFinishedBytes() + ", fileSize: " + mFileInfo.getFileSize());
 
-                    if (mOnProgressListener != null) {
+                    if (mHasOnProgressListener) {
                         ///控制更新下载进度的周期
                         if (System.currentTimeMillis() - currentTimeMillis > mConfig.progressInterval) {
                             mFileInfo.setDiffTimeMillis(System.currentTimeMillis() - currentTimeMillis);   ///下载进度的时间（毫秒）
@@ -117,7 +117,7 @@ public class DownloadThread extends Thread {
                 }
 
                 ///下载完成时，设置进度为100、下载速度为0
-                if (mOnProgressListener != null) {
+                if (mHasOnProgressListener) {
                     mFileInfo.setDiffTimeMillis(1);   ///避免除0异常
                     mFileInfo.setDiffFinishedBytes(0);
                     ///发送消息：更新下载进度

@@ -113,7 +113,7 @@ public class DownloadTask {
                 }
             }
 
-            DownloadThread downloadThread = new DownloadThread(mFileInfo, mConfig, mOnProgressListener, mHandler);
+            DownloadThread downloadThread = new DownloadThread(mFileInfo, mConfig, mHandler, mOnProgressListener != null);
             downloadThread.start();
         }
     }
