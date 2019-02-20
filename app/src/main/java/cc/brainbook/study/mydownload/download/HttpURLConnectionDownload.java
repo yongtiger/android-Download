@@ -106,6 +106,17 @@ public class HttpURLConnectionDownload {
                 } else {
                     mSavePath = mContext.getFilesDir().getAbsolutePath();
                 }
+            } else {
+                ///创建本地下载目录
+                File dir = new File(mSavePath);
+                if (!dir.exists()) {
+                    ///mkdir()和mkdirs()的区别：
+                    ///mkdir()  创建此抽象路径名指定的目录。如果父目录不存在则创建不成功。
+                    ///mkdirs() 创建此抽象路径名指定的目录，包括所有必需但不存在的父目录。
+                    if (!dir.mkdirs()) {
+                        throw new DownloadException(DownloadException.EXCEPTION_SAVE_PATH_MKDIR, "The save path cannot be made: " + mSavePath);
+                    }
+                }
             }
 
             ///网络访问等耗时操作必须在子线程，否则阻塞主线程

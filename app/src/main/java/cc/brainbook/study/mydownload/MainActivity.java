@@ -20,7 +20,7 @@ import cc.brainbook.study.mydownload.download.HttpURLConnectionDownload;
 
 public class MainActivity extends AppCompatActivity implements DownloadCallback {
     private static final String TAG = "TAG";
-    public static final String DOWNLOAD_PATH = Environment.getExternalStorageDirectory().getAbsolutePath() + "/Download/";
+    public static final String DOWNLOAD_PATH = Environment.getExternalStorageDirectory().getAbsolutePath() + "/Downloads/";
 
     public TextView mTextView;
 

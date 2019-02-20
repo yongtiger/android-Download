@@ -31,6 +31,10 @@ public class DownloadException extends RuntimeException {
      *
      */
     public static final int EXCEPTION_IO_EXCEPTION = 5;
+    /**
+     *
+     */
+    public static final int EXCEPTION_SAVE_PATH_MKDIR = 6;
 
     private int code;
 
@@ -66,7 +70,7 @@ public class DownloadException extends RuntimeException {
      * Download exception type.
      */
     @IntDef({EXCEPTION_FILE_URL_NULL, EXCEPTION_FILE_NAME_NULL, EXCEPTION_FILE_NOT_FOUND, EXCEPTION_MALFORMED_URL,
-            EXCEPTION_UNKNOWN_HOST, EXCEPTION_IO_EXCEPTION})
+            EXCEPTION_UNKNOWN_HOST, EXCEPTION_IO_EXCEPTION, EXCEPTION_SAVE_PATH_MKDIR})
     @Retention(RetentionPolicy.SOURCE)
     public @interface ExceptionType {
 
