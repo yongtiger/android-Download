@@ -11,6 +11,7 @@ import android.util.Log;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.BufferedInputStream;
+import java.io.Closeable;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -295,19 +296,8 @@ public class HttpURLConnectionDownload {
             if (connection != null) {
                 connection.disconnect();
             }
-            try {
-                if (fileOutputStream != null) {
-                    fileOutputStream.close();
-                }
-                if (bufferedInputStream != null) {
-                    bufferedInputStream.close();
-                }
-                if (inputStream != null) {
-                    inputStream.close();
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            ///关闭流Closeable
+            closeIO(fileOutputStream, bufferedInputStream, inputStream);
         }
     }
 
@@ -327,5 +317,22 @@ public class HttpURLConnectionDownload {
             filename = new File(path).getName();
         }
         return filename;
+    }
+
+    ///关闭流Closeable
+    private void closeIO(Closeable... closeables) {
+        if (null == closeables || closeables.length <= 0) {
+            return;
+        }
+        for (Closeable cb : closeables) {
+            try {
+                if (null == cb) {
+                    continue;
+                }
+                cb.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 }
