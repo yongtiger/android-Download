@@ -8,8 +8,6 @@ import android.os.Message;
 import android.text.TextUtils;
 import android.util.Log;
 
-import org.jetbrains.annotations.NotNull;
-
 import java.io.BufferedInputStream;
 import java.io.Closeable;
 import java.io.File;
@@ -235,7 +233,7 @@ public class ThreadRunnableDownload {
                 FileChannel channel = fileOutputStream.getChannel();
 
                 ///获得文件长度（建议用long类型，int类型最大为2GB）
-                fileInfo.setTotalBytes(connection.getContentLength());
+                fileInfo.setFileSize(connection.getContentLength());
 
                 ///控制更新下载进度的周期
                 long currentTimeMillis = System.currentTimeMillis();
@@ -255,7 +253,7 @@ public class ThreadRunnableDownload {
 
                     fileInfo.setFinishedBytes(fileInfo.getFinishedBytes() + readLength);
                     Log.d(TAG, "ThreadRunnableDownload#innerDownload(): thread name is: " + Thread.currentThread().getName());
-                    Log.d(TAG, "ThreadRunnableDownload#innerDownload()#finishedBytes: " + fileInfo.getFinishedBytes() + ", totalBytes: " + fileInfo.getTotalBytes());
+                    Log.d(TAG, "ThreadRunnableDownload#innerDownload()#finishedBytes: " + fileInfo.getFinishedBytes() + ", fileSize: " + fileInfo.getFileSize());
 
                     if (mOnProgressListener != null) {
                         ///控制更新下载进度的周期

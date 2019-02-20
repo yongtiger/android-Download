@@ -52,7 +52,7 @@ public class MainActivity extends AppCompatActivity implements DownloadCallback 
 //                .setOnProgressListener(new OnProgressListener() {
 //                    @Override
 //                    public void onProgress(FileInfo fileInfo) {
-//                        int progress = (int) (fileInfo.getFinishedBytes() * 100 / fileInfo.getTotalBytes());
+//                        int progress = (int) (fileInfo.getFinishedBytes() * 100 / fileInfo.getFileSize());
 //                        long speed = fileInfo.getDiffFinishedBytes() / fileInfo.getDiffTimeMillis();
 //                        mTextView.setText(progress + ", " + speed);
 //                    }
@@ -65,7 +65,7 @@ public class MainActivity extends AppCompatActivity implements DownloadCallback 
                 .setOnProgressListener(new OnProgressListener() {
                     @Override
                     public void onProgress(FileInfo fileInfo) {
-                        int progress = (int) (fileInfo.getFinishedBytes() * 100 / fileInfo.getTotalBytes());
+                        int progress = (int) (fileInfo.getFinishedBytes() * 100 / fileInfo.getFileSize());
                         long speed = fileInfo.getDiffFinishedBytes() / fileInfo.getDiffTimeMillis();
                         mTextView.setText(progress + ", " + speed);
                     }
@@ -78,7 +78,7 @@ public class MainActivity extends AppCompatActivity implements DownloadCallback 
 //                .setOnProgressListener(new OnProgressListener() {
 //                    @Override
 //                    public void onProgress(FileInfo fileInfo) {
-//                        int progress = (int) (fileInfo.getFinishedBytes() * 100 / fileInfo.getTotalBytes());
+//                        int progress = (int) (fileInfo.getFinishedBytes() * 100 / fileInfo.getFileSize());
 //                        long speed = fileInfo.getDiffFinishedBytes() / fileInfo.getDiffTimeMillis();
 //                        mTextView.setText(progress + ", " + speed);
 //                    }
@@ -102,6 +102,20 @@ public class MainActivity extends AppCompatActivity implements DownloadCallback 
     @Override
     public void onComplete(FileInfo fileInfo) {
 //        mTextView.setText("DOWNLOAD_COMPLETE");
+        ///下载文件URL
+        String fileUrl = fileInfo.getFileUrl();
+        ///下载文件名
+        String fileName = fileInfo.getFileName();
+        ///下载文件保存路径
+        String savePath = fileInfo.getSavePath();
+        ///下载文件大小
+        long fileSize = fileInfo.getFileSize();
+        ///下载开始时间
+        long startTime = fileInfo.getStartTimeMillis();
+        ///下载结束时间
+        long endTime = fileInfo.getEndTimeMillis();
+
+        Log.d(TAG, "MainActivity#onComplete()#fileInfo: " + fileInfo);
     }
 
 }

@@ -11,7 +11,7 @@ public class FileInfo {
     private String fileUrl;
     private String fileName;
     private String savePath;
-    private long totalBytes;
+    private long fileSize;
     private long finishedBytes;
     private long startTimeMillis;
     private long endTimeMillis;
@@ -55,20 +55,20 @@ public class FileInfo {
         this.fileName = fileName;
     }
 
+    public long getFileSize() {
+        return fileSize;
+    }
+
+    public void setFileSize(long fileSize) {
+        this.fileSize = fileSize;
+    }
+
     public String getSavePath() {
         return savePath;
     }
 
     public void setSavePath(String savePath) {
         this.savePath = savePath;
-    }
-
-    public long getTotalBytes() {
-        return totalBytes;
-    }
-
-    public void setTotalBytes(long totalBytes) {
-        this.totalBytes = totalBytes;
     }
 
     public long getFinishedBytes() {
@@ -119,7 +119,7 @@ public class FileInfo {
                 ", fileUrl='" + fileUrl + '\'' +
                 ", fileName='" + fileName + '\'' +
                 ", savePath='" + savePath + '\'' +
-                ", totalBytes=" + totalBytes +
+                ", fileSize=" + fileSize +
                 ", finishedBytes=" + finishedBytes +
                 ", startTimeMillis=" + startTimeMillis +
                 ", endTimeMillis=" + endTimeMillis +
