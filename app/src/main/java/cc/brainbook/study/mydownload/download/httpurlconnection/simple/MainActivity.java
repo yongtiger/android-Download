@@ -1,10 +1,8 @@
-package cc.brainbook.study.mydownload;
+package cc.brainbook.study.mydownload.download.httpurlconnection.simple;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
 import android.os.Environment;
-import android.os.Handler;
-import android.os.Message;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -13,10 +11,8 @@ import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
-import java.io.File;
-
-import cc.brainbook.study.mydownload.download.DownloadCallback;
-import cc.brainbook.study.mydownload.download.HttpURLConnectionDownload;
+import cc.brainbook.study.mydownload.R;
+import cc.brainbook.study.mydownload.download.httpurlconnection.simple.bean.FileInfo;
 
 public class MainActivity extends AppCompatActivity implements DownloadCallback {
     private static final String TAG = "TAG";
@@ -24,7 +20,7 @@ public class MainActivity extends AppCompatActivity implements DownloadCallback 
 
     public TextView mTextView;
 
-    private HttpURLConnectionDownload httpURLConnectionDownload;
+    private ThreadRunnableDownload httpURLConnectionDownload;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,25 +40,49 @@ public class MainActivity extends AppCompatActivity implements DownloadCallback 
         }
 
         ///实例化HttpURLConnectionDownload时传入Activity引用，方便操作view
-        httpURLConnectionDownload = new HttpURLConnectionDownload(this);
+        httpURLConnectionDownload = new ThreadRunnableDownload(this);
 
     }
 
     public void startDownload(View view) {
-        httpURLConnectionDownload.setFileUrl("http://23.237.10.182/ljdy_v1.0.1.apk")
-                .setFileName("ljdy_v1.0.1.apk")
-                .setSavePath(DOWNLOAD_PATH)
-                .setDownloadCallback(this)
-                .start();
-//        httpURLConnectionDownload.setFileUrl("http://23.237.10.182/smqq.info.rar")
-//                .setFileName("smqq.info.rar")
+//        httpURLConnectionDownload.setFileUrl("http://23.237.10.182/ljdy_v1.0.1.apk")
+//                .setFileName("ljdy_v1.0.1.apk")
 //                .setSavePath(DOWNLOAD_PATH)
 //                .setDownloadCallback(this)
+//                .setOnProgressListener(new OnProgressListener() {
+//                    @Override
+//                    public void onProgress(FileInfo fileInfo) {
+//                        int progress = (int) (fileInfo.getFinishedBytes() * 100 / fileInfo.getTotalBytes());
+//                        long speed = fileInfo.getDiffFinishedBytes() / fileInfo.getDiffTimeMillis();
+//                        mTextView.setText(progress + ", " + speed);
+//                    }
+//                })
 //                .start();
+        httpURLConnectionDownload.setFileUrl("http://23.237.10.182/smqq.info.rar")
+                .setFileName("smqq.info.rar")
+                .setSavePath(DOWNLOAD_PATH)
+                .setDownloadCallback(this)
+                .setOnProgressListener(new OnProgressListener() {
+                    @Override
+                    public void onProgress(FileInfo fileInfo) {
+                        int progress = (int) (fileInfo.getFinishedBytes() * 100 / fileInfo.getTotalBytes());
+                        long speed = fileInfo.getDiffFinishedBytes() / fileInfo.getDiffTimeMillis();
+                        mTextView.setText(progress + ", " + speed);
+                    }
+                })
+                .start();
 //        httpURLConnectionDownload.setFileUrl("http://23.237.10.182/bbs.rar")
 //                .setFileName("bbs.rar")
 //                .setSavePath(DOWNLOAD_PATH)
 //                .setDownloadCallback(this)
+//                .setOnProgressListener(new OnProgressListener() {
+//                    @Override
+//                    public void onProgress(FileInfo fileInfo) {
+//                        int progress = (int) (fileInfo.getFinishedBytes() * 100 / fileInfo.getTotalBytes());
+//                        long speed = fileInfo.getDiffFinishedBytes() / fileInfo.getDiffTimeMillis();
+//                        mTextView.setText(progress + ", " + speed);
+//                    }
+//                })
 //                .start();
     }
 
@@ -80,15 +100,8 @@ public class MainActivity extends AppCompatActivity implements DownloadCallback 
 
     /* ----------- [实现下载回调接口DownloadCallback] ----------- */
     @Override
-    public void onComplete() {
-        mTextView.setText("DOWNLOAD_COMPLETE");
-    }
-
-    @Override
-    public void onProgress(long finishedBytes, long totalBytes, long diffTimeMillis, long diffFinishedBytes) {
-        int progress = (int) (finishedBytes * 100 / totalBytes);
-        long speed = diffFinishedBytes / diffTimeMillis;
-        mTextView.setText(progress + ", " + speed);
+    public void onComplete(FileInfo fileInfo) {
+//        mTextView.setText("DOWNLOAD_COMPLETE");
     }
 
 }

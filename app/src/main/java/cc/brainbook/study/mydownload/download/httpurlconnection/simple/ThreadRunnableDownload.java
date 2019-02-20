@@ -1,4 +1,4 @@
-package cc.brainbook.study.mydownload.download;
+package cc.brainbook.study.mydownload.download.httpurlconnection.simple;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -24,7 +24,9 @@ import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 
-public class HttpURLConnectionDownload {
+import cc.brainbook.study.mydownload.download.httpurlconnection.simple.bean.FileInfo;
+
+public class ThreadRunnableDownload {
     private static final String TAG = "TAG";
     private static final int DOWNLOAD_COMPLETE = 1;
     private static final int DOWNLOAD_PROGRESS = 2;
@@ -39,83 +41,92 @@ public class HttpURLConnectionDownload {
      * https://blog.csdn.net/changlei_shennan/article/details/44039905
      */
     private Context mContext;
-    private volatile boolean isStarted = false;
 
-    public HttpURLConnectionDownload(Context context) {
+    private FileInfo mFileInfo;
+    private static int fileId;
+
+    public ThreadRunnableDownload(Context context) {
         mContext = context;
+        mFileInfo = new FileInfo(fileId++);
     }
 
 
     /* ----------- [链式set方法设置] ----------- */
-    private String mFileUrl;
-    public HttpURLConnectionDownload setFileUrl(String fileUrl) {
-        mFileUrl = fileUrl;
+    public ThreadRunnableDownload setFileUrl(String fileUrl) {
+        mFileInfo.setFileUrl(fileUrl);
         return this;
     }
-    private String mFileName;
-    public HttpURLConnectionDownload setFileName(String fileName) {
-        mFileName = fileName;
+    public ThreadRunnableDownload setFileName(String fileName) {
+        mFileInfo.setFileName(fileName);
         return this;
     }
-    private String mSavePath;
-//    private File mSavePath = Environment.getDownloadCacheDirectory();
-    public HttpURLConnectionDownload setSavePath(String savePath) {
-        mSavePath = savePath;
+    public ThreadRunnableDownload setSavePath(String savePath) {
+        mFileInfo.setSavePath(savePath);
         return this;
     }
     private int mConnectTimeout = 10000;    ///10秒
-    public HttpURLConnectionDownload setConnectTimeout(int connectTimeout) {
+    public ThreadRunnableDownload setConnectTimeout(int connectTimeout) {
         mConnectTimeout = connectTimeout;
         return this;
     }
     ///BufferedInputStream的默认缓冲区大小是8192字节。当每次读取数据量接近或远超这个值时，两者效率就没有明显差别了
     ///https://blog.csdn.net/xisuo002/article/details/78742631
     private int mBufferSize = 1024; ///1k bytes
-    public HttpURLConnectionDownload setBufferSize(int bufferSize) {
+    public ThreadRunnableDownload setBufferSize(int bufferSize) {
         mBufferSize = bufferSize;
         return this;
     }
     private int mProgressInterval = 1000;   ///1秒
-    public HttpURLConnectionDownload setProgressInterval(int progressInterval) {
+    public ThreadRunnableDownload setProgressInterval(int progressInterval) {
         mProgressInterval = progressInterval;
         return this;
     }
     private DownloadCallback mDownloadCallback;
-    public HttpURLConnectionDownload setDownloadCallback(DownloadCallback downloadCallback) {
+    public ThreadRunnableDownload setDownloadCallback(DownloadCallback downloadCallback) {
         mDownloadCallback = downloadCallback;
         return this;
     }
+    private OnProgressListener mOnProgressListener;
+    public ThreadRunnableDownload setOnProgressListener(OnProgressListener onProgressListener) {
+        mOnProgressListener = onProgressListener;
+        return this;
+    }
+
 
     /**
      * 开始下载
      */
     public void start() {
-        Log.d(TAG, "HttpURLConnectionDownload#start(): ");
+        Log.d(TAG, "ThreadRunnableDownload#start(): ");
+
+        ///记录开始下载时间
+        mFileInfo.setStartTimeMillis(System.currentTimeMillis());
+
         ///避免重复启动下载线程
-        if (!isStarted) {
-            isStarted = true;
+        if (mFileInfo.getStatus() != FileInfo.FILE_STATUS_START) {
+            mFileInfo.setStatus(FileInfo.FILE_STATUS_START);
 
             ///检验参数
-            if (TextUtils.isEmpty(mFileUrl)) {
+            if (TextUtils.isEmpty(mFileInfo.getFileUrl())) {
                 throw new DownloadException(DownloadException.EXCEPTION_FILE_URL_NULL, "The file url cannot be null.");
             }
-            if (TextUtils.isEmpty(mSavePath)) {
+            if (TextUtils.isEmpty(mFileInfo.getSavePath())) {
                 ///https://juejin.im/entry/5951d0096fb9a06bb8745f75
                 File downloadDir = mContext.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS);
                 if (downloadDir != null) {
-                    mSavePath = downloadDir.getAbsolutePath();
+                    mFileInfo.setSavePath(downloadDir.getAbsolutePath());
                 } else {
-                    mSavePath = mContext.getFilesDir().getAbsolutePath();
+                    mFileInfo.setSavePath(mContext.getFilesDir().getAbsolutePath());
                 }
             } else {
                 ///创建本地下载目录
-                File dir = new File(mSavePath);
+                File dir = new File(mFileInfo.getSavePath());
                 if (!dir.exists()) {
                     ///mkdir()和mkdirs()的区别：
                     ///mkdir()  创建此抽象路径名指定的目录。如果父目录不存在则创建不成功。
                     ///mkdirs() 创建此抽象路径名指定的目录，包括所有必需但不存在的父目录。
                     if (!dir.mkdirs()) {
-                        throw new DownloadException(DownloadException.EXCEPTION_SAVE_PATH_MKDIR, "The save path cannot be made: " + mSavePath);
+                        throw new DownloadException(DownloadException.EXCEPTION_SAVE_PATH_MKDIR, "The save path cannot be made: " + mFileInfo.getSavePath());
                     }
                 }
             }
@@ -125,7 +136,7 @@ public class HttpURLConnectionDownload {
                 @Override
                 public void run() {
                     ///建议innerDownload()方法用参数传递的方式，而不建议直接引用类成员变量！符合解耦原则
-                    innerDownload(mFileUrl, mFileName, mSavePath, mConnectTimeout, mBufferSize, mProgressInterval);
+                    innerDownload(mFileInfo, mConnectTimeout, mBufferSize, mProgressInterval);
                 }
             }).start();
         }
@@ -135,9 +146,9 @@ public class HttpURLConnectionDownload {
      * 停止下载
      */
     public void stop() {
-        Log.d(TAG, "HttpURLConnectionDownload#stop(): ");
-        if (isStarted) {
-            isStarted = false;
+        Log.d(TAG, "ThreadRunnableDownload#stop(): ");
+        if (mFileInfo.getStatus() == FileInfo.FILE_STATUS_START) {
+            mFileInfo.setStatus(FileInfo.FILE_STATUS_STOP);
         }
     }
 
@@ -150,22 +161,24 @@ public class HttpURLConnectionDownload {
         public void handleMessage(Message msg) {
             switch (msg.what) {
                 case DOWNLOAD_COMPLETE:
-                    Log.d(TAG, "HttpURLConnectionDownload#handleMessage(): msg.what = DOWNLOAD_COMPLETE");
+                    Log.d(TAG, "ThreadRunnableDownload#handleMessage(): msg.what = DOWNLOAD_COMPLETE");
+
+                    ///设置下载完成时间
+                    mFileInfo.setEndTimeMillis(System.currentTimeMillis());
 
                     ///下载完成回调接口DownloadCallback
                     if (mDownloadCallback != null) {
-                        mDownloadCallback.onComplete();
+                        mDownloadCallback.onComplete(mFileInfo);
                     }
 
                     break;
                 case DOWNLOAD_PROGRESS:
-                    Log.d(TAG, "HttpURLConnectionDownload#handleMessage(): msg.what = DOWNLOAD_PROGRESS");
+                    Log.d(TAG, "ThreadRunnableDownload#handleMessage(): msg.what = DOWNLOAD_PROGRESS");
 
                     ///下载进度回调接口DownloadCallback
-                    if (mDownloadCallback != null) {
+                    if (mOnProgressListener != null) {
                         ///获取已经下载完的字节数、下载文件的总字节数、下载进度的时间（毫秒）、下载进度的下载字节数
-                        long[] l = (long[]) msg.obj;
-                        mDownloadCallback.onProgress(l[0], l[1], l[2], l[3]);
+                        mOnProgressListener.onProgress(mFileInfo);
                     }
 
                     break;
@@ -177,16 +190,12 @@ public class HttpURLConnectionDownload {
     /**
      * 内部下载过程
      *
-     * @param fileUrl
-     * @param fileName
-     * @param savePath
+     * @param fileInfo
      * @param connectTimeout
      * @param bufferSize
      * @param progressInterval
      */
-    private void innerDownload(@NotNull String fileUrl,
-                               String fileName,
-                               String savePath,
+    private void innerDownload(FileInfo fileInfo,
                                int connectTimeout,
                                int bufferSize,
                                int progressInterval) {
@@ -198,7 +207,7 @@ public class HttpURLConnectionDownload {
 
         try {
             ///由下载文件的URL网址建立Http网络连接connection
-            URL url = new URL(fileUrl);
+            URL url = new URL(fileInfo.getFileUrl());
             connection = (HttpURLConnection) url.openConnection();
             connection.setConnectTimeout(connectTimeout);
             connection.connect();
@@ -207,9 +216,9 @@ public class HttpURLConnectionDownload {
             if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
 
                 ///获得下载文件名
-                if (fileName == null || fileName.length() == 0) {
-                    fileName = getUrlFileName(connection);
-                    if (fileName.length() == 0) {
+                if (fileInfo.getFileName().isEmpty()) {
+                    fileInfo.setFileName(getUrlFileName(connection));
+                    if (fileInfo.getFileName().isEmpty()) {
                         throw new DownloadException(DownloadException.EXCEPTION_FILE_NAME_NULL, "The file name cannot be null.");
                     }
                 }
@@ -221,58 +230,69 @@ public class HttpURLConnectionDownload {
                 bufferedInputStream = new BufferedInputStream(inputStream);
 
                 ///创建文件输出流对象
-                File saveFile = new File(savePath, fileName);
+                File saveFile = new File(fileInfo.getSavePath(), fileInfo.getFileName());
                 fileOutputStream = new FileOutputStream(saveFile);
                 FileChannel channel = fileOutputStream.getChannel();
 
                 ///获得文件长度（建议用long类型，int类型最大为2GB）
-                long totalBytes = connection.getContentLength();
-                ///已经下载完的字节数
-                long finishedBytes = 0;
+                fileInfo.setTotalBytes(connection.getContentLength());
+
                 ///控制更新下载进度的周期
                 long currentTimeMillis = System.currentTimeMillis();
-                long currentFinishedBytes = 0;
+                long currentFinishedBytes = fileInfo.getFinishedBytes();
 
-                ///每次循环读取的内容长度，如为-1表示输入流已经读取结束
-                int length;
                 ///输入流每次读取的内容（字节缓冲区）
                 ///BufferedInputStream的默认缓冲区大小是8192字节。当每次读取数据量接近或远超这个值时，两者效率就没有明显差别了
                 ///https://blog.csdn.net/xisuo002/article/details/78742631
                 byte[] bytes = new byte[bufferSize];
-                while ((length = bufferedInputStream.read(bytes)) != -1) {
+                ///每次循环读取的内容长度，如为-1表示输入流已经读取结束
+                int readLength;
+                while ((readLength = bufferedInputStream.read(bytes)) != -1) {
                     ///写入字节缓冲区内容到文件输出流
                     ///Wrap a byte array into a buffer
-                    ByteBuffer buf = ByteBuffer.wrap(bytes, 0, length);
+                    ByteBuffer buf = ByteBuffer.wrap(bytes, 0, readLength);
                     channel.write(buf);
-                    finishedBytes += length;
-                    Log.d(TAG, "HttpURLConnectionDownload#innerDownload(): thread name is: " + Thread.currentThread().getName());
-                    Log.d(TAG, "HttpURLConnectionDownload#innerDownload()#finishedBytes: " + finishedBytes + ", totalBytes: " + totalBytes);
 
-                    ///控制更新下载进度的周期
-                    if (System.currentTimeMillis() - currentTimeMillis > progressInterval) {
-                        long diffTimeMillis = System.currentTimeMillis() - currentTimeMillis;   ///下载进度的时间（毫秒）
-                        currentTimeMillis = System.currentTimeMillis();
-                        long diffFinishedBytes = finishedBytes - currentFinishedBytes;  ///下载进度的下载字节数
-                        currentFinishedBytes = finishedBytes;
-                        ///发送消息：更新下载进度
-                        mHandler.obtainMessage(DOWNLOAD_PROGRESS, new long[]{finishedBytes, totalBytes, diffTimeMillis, diffFinishedBytes}).sendToTarget();
+                    fileInfo.setFinishedBytes(fileInfo.getFinishedBytes() + readLength);
+                    Log.d(TAG, "ThreadRunnableDownload#innerDownload(): thread name is: " + Thread.currentThread().getName());
+                    Log.d(TAG, "ThreadRunnableDownload#innerDownload()#finishedBytes: " + fileInfo.getFinishedBytes() + ", totalBytes: " + fileInfo.getTotalBytes());
+
+                    if (mOnProgressListener != null) {
+                        ///控制更新下载进度的周期
+                        if (System.currentTimeMillis() - currentTimeMillis > progressInterval) {
+                            fileInfo.setDiffTimeMillis(System.currentTimeMillis() - currentTimeMillis);   ///下载进度的时间（毫秒）
+                            currentTimeMillis = System.currentTimeMillis();
+                            fileInfo.setDiffFinishedBytes(fileInfo.getFinishedBytes() - currentFinishedBytes);  ///下载进度的下载字节数
+                            currentFinishedBytes = fileInfo.getFinishedBytes();
+                            ///发送消息：更新下载进度
+                            mHandler.obtainMessage(DOWNLOAD_PROGRESS).sendToTarget();
+                        }
                     }
 
                     ///停止下载线程
-                    if (!isStarted) {
-                        Log.d(TAG, "HttpURLConnectionDownload#innerDownload()#isStarted: " + isStarted);
+                    if (fileInfo.getStatus() == FileInfo.FILE_STATUS_STOP) {
+                        Log.d(TAG, "ThreadRunnableDownload#innerDownload()#fileInfo.getStatus(): FILE_STATUS_STOP");
                         return;
                     }
                 }
 
-                isStarted = false;
+                ///下载完成时，设置进度为100、下载速度为0
+                if (mOnProgressListener != null) {
+                    fileInfo.setDiffTimeMillis(1);   ///避免除0异常
+                    fileInfo.setDiffFinishedBytes(0);
+                    ///发送消息：更新下载进度
+                    mHandler.obtainMessage(DOWNLOAD_PROGRESS).sendToTarget();
+                }
+
+                fileInfo.setStatus(FileInfo.FILE_STATUS_COMPLETE);
 
                 ///发送消息：下载完成
-                Log.d(TAG, "HttpURLConnectionDownload#innerDownload()#mHandler.obtainMessage(DOWNLOAD_COMPLETE, null).sendToTarget();");
-                mHandler.obtainMessage(DOWNLOAD_COMPLETE, null).sendToTarget();
+                Log.d(TAG, "ThreadRunnableDownload#innerDownload()#mHandler.obtainMessage(DOWNLOAD_COMPLETE, mFileInfo).sendToTarget();");
+                ///因为要传递的不是单一数据类型，所以不能使用数组，只能用类FileInfo
+                mHandler.obtainMessage(DOWNLOAD_COMPLETE).sendToTarget();
 
             } else {
-                Log.d(TAG, "HttpURLConnectionDownload#innerDownload()#connection的响应码: " + connection.getResponseCode());
+                Log.d(TAG, "ThreadRunnableDownload#innerDownload()#connection的响应码: " + connection.getResponseCode());
                 throw new DownloadException(DownloadException.EXCEPTION_IO_EXCEPTION, "The connection response code is " + connection.getResponseCode());
             }
         } catch (MalformedURLException e) {
