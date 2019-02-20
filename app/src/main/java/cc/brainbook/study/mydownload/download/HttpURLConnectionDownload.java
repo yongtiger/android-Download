@@ -5,6 +5,7 @@ import android.content.Context;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
+import android.text.TextUtils;
 import android.util.Log;
 
 import org.jetbrains.annotations.NotNull;
@@ -18,6 +19,7 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.UnknownHostException;
 
 public class HttpURLConnectionDownload {
     private static final String TAG = "TAG";
@@ -52,8 +54,9 @@ public class HttpURLConnectionDownload {
         mFileName = fileName;
         return this;
     }
-    private File mSavePath = Environment.getDownloadCacheDirectory();
-    public HttpURLConnectionDownload setSavePath(File savePath) {
+    private String mSavePath;
+//    private File mSavePath = Environment.getDownloadCacheDirectory();
+    public HttpURLConnectionDownload setSavePath(String savePath) {
         mSavePath = savePath;
         return this;
     }
@@ -86,6 +89,20 @@ public class HttpURLConnectionDownload {
         ///避免重复启动下载线程
         if (!isStarted) {
             isStarted = true;
+
+            ///检验参数
+            if (TextUtils.isEmpty(mFileUrl)) {
+                throw new DownloadException(DownloadException.EXCEPTION_FILE_URL_NULL, "The file url cannot be null.");
+            }
+            if (TextUtils.isEmpty(mSavePath)) {
+                ///https://juejin.im/entry/5951d0096fb9a06bb8745f75
+                File downloadDir = mContext.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS);
+                if (downloadDir != null) {
+                    mSavePath = downloadDir.getAbsolutePath();
+                } else {
+                    mSavePath = mContext.getFilesDir().getAbsolutePath();
+                }
+            }
 
             ///网络访问等耗时操作必须在子线程，否则阻塞主线程
             new Thread(new Runnable() {
@@ -152,8 +169,8 @@ public class HttpURLConnectionDownload {
      * @param progressInterval
      */
     private void innerDownload(@NotNull String fileUrl,
-                               @NotNull String fileName,
-                               @NotNull File savePath,
+                               String fileName,
+                               String savePath,
                                int connectTimeout,
                                int bufferSize,
                                int progressInterval) {
@@ -171,6 +188,15 @@ public class HttpURLConnectionDownload {
 
             ///如果网络连接connection的响应码为200，则开始下载过程
             if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
+
+                ///获得下载文件名
+                if (fileName == null || fileName.length() == 0) {
+                    fileName = getUrlFileName(connection);
+                    if (fileName.length() == 0) {
+                        throw new DownloadException(DownloadException.EXCEPTION_FILE_NAME_NULL, "The file name cannot be null.");
+                    }
+                }
+
                 ///获得网络连接connection的输入流对象
                 inputStream = connection.getInputStream();
                 ///由输入流对象创建缓冲输入流对象（比inputStream效率要高）
@@ -229,14 +255,20 @@ public class HttpURLConnectionDownload {
         } catch (MalformedURLException e) {
             ///当URL为null或无效网络连接协议时：java.net.MalformedURLException: Protocol not found
             e.printStackTrace();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            ///当没有网络链接，或
+            throw new DownloadException(DownloadException.EXCEPTION_MALFORMED_URL, "The protocol is not found.", e);
+        } catch (UnknownHostException e) {
             ///URL虽然以http://或https://开头、但host为空或无效host
             ///     java.net.UnknownHostException: http://
             ///     java.net.UnknownHostException: Unable to resolve host "aaa": No address associated with hostname
             e.printStackTrace();
+            throw new DownloadException(DownloadException.EXCEPTION_UNKNOWN_HOST, "The host is unknown.", e);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            throw new DownloadException(DownloadException.EXCEPTION_FILE_NOT_FOUND, "The file is not found.", e);
+        } catch (IOException e) {
+            ///当没有网络链接
+            e.printStackTrace();
+            throw new DownloadException(DownloadException.EXCEPTION_IO_EXCEPTION, "IO error.", e);
         } finally {
             if (connection != null) {
                 connection.disconnect();
@@ -254,4 +286,21 @@ public class HttpURLConnectionDownload {
         }
     }
 
+    private String getUrlFileName(HttpURLConnection connection) {
+        String filename = "";
+        String disposition = connection.getHeaderField("Content-Disposition");
+        if (disposition != null) {
+            // extracts file name from header field
+            int index = disposition.indexOf("filename=");
+            if (index > 0) {
+                filename = disposition.substring(index + 10,
+                        disposition.length() - 1);
+            }
+        }
+        if (filename.length() == 0) {
+            String path = connection.getURL().getPath();
+            filename = new File(path).getName();
+        }
+        return filename;
+    }
 }
