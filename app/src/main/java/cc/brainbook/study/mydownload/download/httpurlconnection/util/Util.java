@@ -1,4 +1,4 @@
-package cc.brainbook.study.mydownload.download.httpurlconnection.simple.util;
+package cc.brainbook.study.mydownload.download.httpurlconnection.util;
 
 import java.io.Closeable;
 import java.io.File;

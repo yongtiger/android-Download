@@ -1,4 +1,4 @@
-package cc.brainbook.study.mydownload.download.httpurlconnection.simple;
+package cc.brainbook.study.mydownload.download.httpurlconnection.simple.interfaces;
 
 import cc.brainbook.study.mydownload.download.httpurlconnection.simple.bean.FileInfo;
 

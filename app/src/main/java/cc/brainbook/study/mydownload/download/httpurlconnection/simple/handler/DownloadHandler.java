@@ -4,8 +4,8 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 
-import cc.brainbook.study.mydownload.download.httpurlconnection.simple.DownloadCallback;
-import cc.brainbook.study.mydownload.download.httpurlconnection.simple.OnProgressListener;
+import cc.brainbook.study.mydownload.download.httpurlconnection.simple.interfaces.DownloadCallback;
+import cc.brainbook.study.mydownload.download.httpurlconnection.simple.interfaces.OnProgressListener;
 import cc.brainbook.study.mydownload.download.httpurlconnection.simple.bean.FileInfo;
 
 public class DownloadHandler extends Handler {

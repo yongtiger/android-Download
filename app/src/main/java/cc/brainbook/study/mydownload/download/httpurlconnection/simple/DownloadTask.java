@@ -10,7 +10,10 @@ import java.io.File;
 
 import cc.brainbook.study.mydownload.download.httpurlconnection.simple.bean.FileInfo;
 import cc.brainbook.study.mydownload.download.httpurlconnection.simple.config.Config;
+import cc.brainbook.study.mydownload.download.httpurlconnection.simple.exception.DownloadException;
 import cc.brainbook.study.mydownload.download.httpurlconnection.simple.handler.DownloadHandler;
+import cc.brainbook.study.mydownload.download.httpurlconnection.simple.interfaces.DownloadCallback;
+import cc.brainbook.study.mydownload.download.httpurlconnection.simple.interfaces.OnProgressListener;
 
 public class DownloadTask {
     private static final String TAG = "TAG";

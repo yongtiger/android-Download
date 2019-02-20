@@ -13,6 +13,8 @@ import android.widget.TextView;
 
 import cc.brainbook.study.mydownload.R;
 import cc.brainbook.study.mydownload.download.httpurlconnection.simple.bean.FileInfo;
+import cc.brainbook.study.mydownload.download.httpurlconnection.simple.interfaces.DownloadCallback;
+import cc.brainbook.study.mydownload.download.httpurlconnection.simple.interfaces.OnProgressListener;
 
 public class MainActivity extends AppCompatActivity implements DownloadCallback {
     private static final String TAG = "TAG";
