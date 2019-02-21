@@ -10,8 +10,10 @@ import cc.brainbook.study.mydownload.download.httpurlconnection.simple.bean.File
 
 public class DownloadHandler extends Handler {
     private static final String TAG = "TAG";
-    public static final int DOWNLOAD_COMPLETE = 1;
-    public static final int DOWNLOAD_PROGRESS = 2;
+    public static final int MSG_START = 1;
+    public static final int MSG_STOP = 2;
+    public static final int MSG_COMPLETE = 3;
+    public static final int MSG_PROGRESS = 4;
 
     private FileInfo mFileInfo;
     private DownloadCallback mDownloadCallback;
@@ -26,13 +28,44 @@ public class DownloadHandler extends Handler {
     @Override
     public void handleMessage(Message msg) {
         switch (msg.what) {
-            case DOWNLOAD_COMPLETE:
-                Log.d(TAG, "DownloadHandler#handleMessage(): msg.what = DOWNLOAD_COMPLETE");
+            case MSG_START:
+                Log.d(TAG, "DownloadHandler#handleMessage(): msg.what = MSG_START");
+
+                ///设置下载开始时间
+                mFileInfo.setStartTimeMillis(System.currentTimeMillis());
+
+                ///下载完成回调接口DownloadCallback
+                if (mDownloadCallback != null) {
+                    mDownloadCallback.onStart(mFileInfo);
+                }
+
+                break;
+            case MSG_STOP:
+                Log.d(TAG, "DownloadHandler#handleMessage(): msg.what = MSG_STOP");
+
+                ///设置下载停止时间
+                mFileInfo.setEndTimeMillis(System.currentTimeMillis());
+
+                ///重置下载速度为0
+                if (mOnProgressListener != null) {
+                    mFileInfo.setDiffTimeMillis(0);
+                    mFileInfo.setDiffFinishedBytes(0);
+                    mOnProgressListener.onProgress(mFileInfo);
+                }
+
+                ///下载完成回调接口DownloadCallback
+                if (mDownloadCallback != null) {
+                    mDownloadCallback.onStop(mFileInfo);
+                }
+
+                break;
+            case MSG_COMPLETE:
+                Log.d(TAG, "DownloadHandler#handleMessage(): msg.what = MSG_COMPLETE");
 
                 ///设置下载完成时间
                 mFileInfo.setEndTimeMillis(System.currentTimeMillis());
 
-                ///设置下载速度为0
+                ///重置下载速度为0
                 if (mOnProgressListener != null) {
                     mFileInfo.setDiffTimeMillis(0);
                     mFileInfo.setDiffFinishedBytes(0);
@@ -45,8 +78,8 @@ public class DownloadHandler extends Handler {
                 }
 
                 break;
-            case DOWNLOAD_PROGRESS:
-                Log.d(TAG, "DownloadHandler#handleMessage(): msg.what = DOWNLOAD_PROGRESS");
+            case MSG_PROGRESS:
+                Log.d(TAG, "DownloadHandler#handleMessage(): msg.what = MSG_PROGRESS");
 
                 ///下载进度回调接口DownloadCallback
                 if (mOnProgressListener != null) {
@@ -57,4 +90,5 @@ public class DownloadHandler extends Handler {
         }
         super.handleMessage(msg);
     }
+
 }

@@ -86,8 +86,6 @@ public class DownloadTask {
         if (mFileInfo.getStatus() != FileInfo.FILE_STATUS_START) {
             mFileInfo.setStatus(FileInfo.FILE_STATUS_START);
 
-            ///设置开始下载时间
-            mFileInfo.setStartTimeMillis(System.currentTimeMillis());
             ///重置已经下载字节数
             mFileInfo.setFinishedBytes(0);
 
@@ -130,18 +128,6 @@ public class DownloadTask {
         Log.d(TAG, "DownloadTask#stop(): ");
         if (mFileInfo.getStatus() == FileInfo.FILE_STATUS_START) {
             mFileInfo.setStatus(FileInfo.FILE_STATUS_STOP);
-
-            ///设置下载停止时间
-            mFileInfo.setEndTimeMillis(System.currentTimeMillis());
-
-            ///设置下载速度为0
-            if (mOnProgressListener != null) {
-                mFileInfo.setDiffTimeMillis(0);
-                mFileInfo.setDiffFinishedBytes(0);
-                mOnProgressListener.onProgress(mFileInfo);
-            }
-
-            mHandler = null;
         }
     }
 

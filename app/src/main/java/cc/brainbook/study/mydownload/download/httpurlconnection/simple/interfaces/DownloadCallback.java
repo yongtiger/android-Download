@@ -8,6 +8,20 @@ import cc.brainbook.study.mydownload.download.httpurlconnection.simple.bean.File
 public interface DownloadCallback {
 
     /**
+     * 下载开始的回调方法
+     *
+     * @param fileInfo
+     */
+    void onStart(FileInfo fileInfo);
+
+    /**
+     * 下载停止的回调方法
+     *
+     * @param fileInfo
+     */
+    void onStop(FileInfo fileInfo);
+
+    /**
      * 下载完成的回调方法
      *
      * @param fileInfo

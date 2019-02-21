@@ -116,6 +116,16 @@ public class MainActivity extends AppCompatActivity implements DownloadCallback 
 
     /* ----------- [实现下载回调接口DownloadCallback] ----------- */
     @Override
+    public void onStart(FileInfo fileInfo) {
+        Log.d(TAG, "MainActivity#onStart()#fileInfo: " + fileInfo);
+    }
+
+    @Override
+    public void onStop(FileInfo fileInfo) {
+        Log.d(TAG, "MainActivity#onStop()#fileInfo: " + fileInfo);
+    }
+
+    @Override
     public void onComplete(FileInfo fileInfo) {
         ///下载文件URL
         String fileUrl = fileInfo.getFileUrl();

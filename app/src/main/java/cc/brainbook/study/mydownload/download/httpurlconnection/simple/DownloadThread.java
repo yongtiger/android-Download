@@ -78,6 +78,9 @@ public class DownloadThread extends Thread {
                 ///获得文件长度（建议用long类型，int类型最大为2GB）
                 mFileInfo.setFileSize(connection.getContentLength());
 
+                ///发送消息：下载开始
+                mHandler.obtainMessage(DownloadHandler.MSG_START).sendToTarget();
+
                 ///控制更新下载进度的周期
                 long currentTimeMillis = System.currentTimeMillis();
                 long currentFinishedBytes = mFileInfo.getFinishedBytes();
@@ -106,13 +109,15 @@ public class DownloadThread extends Thread {
                             mFileInfo.setDiffFinishedBytes(mFileInfo.getFinishedBytes() - currentFinishedBytes);  ///下载进度的下载字节数
                             currentFinishedBytes = mFileInfo.getFinishedBytes();
                             ///发送消息：更新下载进度
-                            mHandler.obtainMessage(DownloadHandler.DOWNLOAD_PROGRESS).sendToTarget();
+                            mHandler.obtainMessage(DownloadHandler.MSG_PROGRESS).sendToTarget();
                         }
                     }
 
                     ///停止下载线程
                     if (mFileInfo.getStatus() == FileInfo.FILE_STATUS_STOP) {
+                        ///发送消息：下载停止
                         Log.d(TAG, "DownloadThread#run()#mFileInfo.getStatus(): FILE_STATUS_STOP");
+                        mHandler.obtainMessage(DownloadHandler.MSG_STOP).sendToTarget();
                         return;
                     }
                 }
@@ -120,9 +125,8 @@ public class DownloadThread extends Thread {
                 mFileInfo.setStatus(FileInfo.FILE_STATUS_COMPLETE);
 
                 ///发送消息：下载完成
-                Log.d(TAG, "DownloadThread#run()#mHandler.obtainMessage(DOWNLOAD_COMPLETE, mFileInfo).sendToTarget();");
-                ///因为要传递的不是单一数据类型，所以不能使用数组，只能用类FileInfo
-                mHandler.obtainMessage(DownloadHandler.DOWNLOAD_COMPLETE).sendToTarget();
+                Log.d(TAG, "DownloadThread#run()#mHandler.obtainMessage(MSG_COMPLETE, mFileInfo).sendToTarget();");
+                mHandler.obtainMessage(DownloadHandler.MSG_COMPLETE).sendToTarget();
 
             } else {
                 Log.d(TAG, "DownloadThread#run(): connection的响应码: " + connection.getResponseCode());
