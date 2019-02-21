@@ -82,14 +82,14 @@ public class DownloadTask {
     public void start() {
         Log.d(TAG, "DownloadTask#start(): ");
 
-        mHandler = new DownloadHandler(mFileInfo, mDownloadCallback, mOnProgressListener);
-
-        ///记录开始下载时间
-        mFileInfo.setStartTimeMillis(System.currentTimeMillis());
-
         ///避免重复启动下载线程
         if (mFileInfo.getStatus() != FileInfo.FILE_STATUS_START) {
             mFileInfo.setStatus(FileInfo.FILE_STATUS_START);
+
+            ///设置开始下载时间
+            mFileInfo.setStartTimeMillis(System.currentTimeMillis());
+            ///重置已经下载字节数
+            mFileInfo.setFinishedBytes(0);
 
             ///检验参数
             if (TextUtils.isEmpty(mFileInfo.getFileUrl())) {
@@ -116,6 +116,8 @@ public class DownloadTask {
                 }
             }
 
+            mHandler = new DownloadHandler(mFileInfo, mDownloadCallback, mOnProgressListener);
+
             DownloadThread downloadThread = new DownloadThread(mFileInfo, mConfig, mHandler, mOnProgressListener != null);
             downloadThread.start();
         }
@@ -128,19 +130,19 @@ public class DownloadTask {
         Log.d(TAG, "DownloadTask#stop(): ");
         if (mFileInfo.getStatus() == FileInfo.FILE_STATUS_START) {
             mFileInfo.setStatus(FileInfo.FILE_STATUS_STOP);
+
+            ///设置下载停止时间
+            mFileInfo.setEndTimeMillis(System.currentTimeMillis());
+
+            ///设置下载速度为0
+            if (mOnProgressListener != null) {
+                mFileInfo.setDiffTimeMillis(0);
+                mFileInfo.setDiffFinishedBytes(0);
+                mOnProgressListener.onProgress(mFileInfo);
+            }
+
+            mHandler = null;
         }
-
-        ///设置下载停止时间
-        mFileInfo.setEndTimeMillis(System.currentTimeMillis());
-
-        ///设置下载速度为0
-        if (mOnProgressListener != null) {
-            mFileInfo.setDiffTimeMillis(0);
-            mFileInfo.setDiffFinishedBytes(0);
-            mOnProgressListener.onProgress(mFileInfo);
-        }
-
-        mHandler = null;
     }
 
 }

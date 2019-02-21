@@ -76,21 +76,8 @@ public class MainActivity extends AppCompatActivity implements DownloadCallback 
 //                    }
 //                })
 //                .start();
-//        downloadTask.setFileUrl("http://23.237.10.182/smqq.info.rar")
-//                .setFileName("smqq.info.rar")
-//                .setSavePath(DOWNLOAD_PATH)
-//                .setDownloadCallback(this)
-//                .setOnProgressListener(new OnProgressListener() {
-//                    @Override
-//                    public void onProgress(FileInfo fileInfo) {
-//                        int progress = (int) (fileInfo.getFinishedBytes() * 100 / fileInfo.getFileSize());
-//                        long speed = fileInfo.getDiffFinishedBytes() / fileInfo.getDiffTimeMillis();
-//                        mTextView.setText(progress + ", " + speed);
-//                    }
-//                })
-//                .start();
-        downloadTask.setFileUrl("http://23.237.10.182/bbs.rar")
-                .setFileName("bbs.rar")
+        downloadTask.setFileUrl("http://23.237.10.182/smqq.info.rar")
+                .setFileName("smqq.info.rar")
                 .setSavePath(DOWNLOAD_PATH)
                 .setDownloadCallback(this)
                 .setOnProgressListener(new OnProgressListener() {
@@ -103,6 +90,20 @@ public class MainActivity extends AppCompatActivity implements DownloadCallback 
                     }
                 })
                 .start();
+//        downloadTask.setFileUrl("http://23.237.10.182/bbs.rar")
+//                .setFileName("bbs.rar")
+//                .setSavePath(DOWNLOAD_PATH)
+//                .setDownloadCallback(this)
+//                .setOnProgressListener(new OnProgressListener() {
+//                    @Override
+//                    public void onProgress(FileInfo fileInfo) {
+//                        ///避免除0异常
+//                        int progress = fileInfo.getFinishedBytes() == 0 ? 0 : (int) (fileInfo.getFinishedBytes() * 100 / fileInfo.getFileSize());
+//                        long speed = fileInfo.getDiffFinishedBytes() == 0 ? 0 : fileInfo.getDiffFinishedBytes() / fileInfo.getDiffTimeMillis();
+//                        mTextView.setText(progress + ", " + speed);
+//                    }
+//                })
+//                .start();
     }
 
     private void stopDownload(DownloadTask downloadTask) {
