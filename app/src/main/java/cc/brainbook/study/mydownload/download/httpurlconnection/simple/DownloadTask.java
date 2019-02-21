@@ -30,7 +30,6 @@ public class DownloadTask {
     private Context mContext;
 
     private FileInfo mFileInfo;
-    private static int sFileId;
 
     private Config mConfig = new Config();
 
@@ -38,7 +37,7 @@ public class DownloadTask {
 
     public DownloadTask(Context context) {
         mContext = context;
-        mFileInfo = new FileInfo(sFileId++);
+        mFileInfo = new FileInfo();
     }
 
     public DownloadTask setFileUrl(String fileUrl) {

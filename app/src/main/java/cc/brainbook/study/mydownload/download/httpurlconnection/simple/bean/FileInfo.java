@@ -6,7 +6,6 @@ public class FileInfo {
     public static final int FILE_STATUS_STOP = 2;
     public static final int FILE_STATUS_COMPLETE = 3;
 
-    private int id;
     private volatile int status;
     private String fileUrl;
     private String fileName;
@@ -18,17 +17,8 @@ public class FileInfo {
     private long diffTimeMillis;
     private long diffFinishedBytes;
 
-    public FileInfo(int id) {
-        this.id = id;
+    public FileInfo() {
         this.status = FILE_STATUS_INIT;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
     }
 
     public int getStatus() {
@@ -114,7 +104,6 @@ public class FileInfo {
     @Override
     public String toString() {
         return "FileInfo{" +
-                "id=" + id +
                 ", status=" + status +
                 ", fileUrl='" + fileUrl + '\'' +
                 ", fileName='" + fileName + '\'' +
