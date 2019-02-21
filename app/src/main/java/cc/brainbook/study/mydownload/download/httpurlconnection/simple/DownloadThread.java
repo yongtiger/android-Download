@@ -4,38 +4,24 @@ import android.util.Log;
 
 import java.io.BufferedInputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.UnknownHostException;
-import java.nio.ByteBuffer;
-import java.nio.channels.Channel;
 import java.nio.channels.FileChannel;
+
 import android.os.Handler;
 
+import cc.brainbook.study.mydownload.download.httpurlconnection.simple.base.BaseDownloadThread;
 import cc.brainbook.study.mydownload.download.httpurlconnection.simple.bean.FileInfo;
 import cc.brainbook.study.mydownload.download.httpurlconnection.simple.config.Config;
 import cc.brainbook.study.mydownload.download.httpurlconnection.simple.exception.DownloadException;
 import cc.brainbook.study.mydownload.download.httpurlconnection.simple.handler.DownloadHandler;
 import cc.brainbook.study.mydownload.download.httpurlconnection.util.Util;
 
-public class DownloadThread extends Thread {
+public class DownloadThread extends BaseDownloadThread {
     private static final String TAG = "TAG";
 
-    private FileInfo mFileInfo;
-    private Config mConfig;
-    private boolean mHasOnProgressListener;
-    private Handler mHandler;
-
     public DownloadThread(FileInfo fileInfo, Config config, Handler handler, boolean hasOnProgressListener) {
-        this.mFileInfo = fileInfo;
-        this.mConfig = config;
-        this.mHandler = handler;
-        this.mHasOnProgressListener = hasOnProgressListener;
+        super(fileInfo, config, handler, hasOnProgressListener);
     }
 
     @Override
@@ -120,117 +106,4 @@ public class DownloadThread extends Thread {
         Util.closeIO(bufferedInputStream, fileOutputStream);
     }
 
-    /**
-     * 由下载文件的URL网址建立Http网络连接connection
-     *
-     * @param fileUrl
-     * @throws MalformedURLException
-     * @throws IOException
-     */
-    private HttpURLConnection openConnection(String fileUrl) {
-        URL url;
-        try {
-            url = new URL(fileUrl);
-        } catch (MalformedURLException e) {
-            ///当URL为null或无效网络连接协议时：java.net.MalformedURLException: Protocol not found
-            e.printStackTrace();
-            throw new DownloadException(DownloadException.EXCEPTION_MALFORMED_URL, "The protocol is not found.", e);
-        }
-
-        HttpURLConnection connection;
-        try {
-            connection = (HttpURLConnection) url.openConnection();
-        } catch (UnknownHostException e) {
-            ///URL虽然以http://或https://开头、但host为空或无效host
-            ///     java.net.UnknownHostException: http://
-            ///     java.net.UnknownHostException: Unable to resolve host "aaa": No address associated with hostname
-            e.printStackTrace();
-            throw new DownloadException(DownloadException.EXCEPTION_UNKNOWN_HOST, "The host is unknown.", e);
-        } catch (IOException e) {
-            ///当没有网络链接?????????
-            e.printStackTrace();
-            throw new DownloadException(DownloadException.EXCEPTION_IO_EXCEPTION, "IOException expected.", e);
-        }
-
-        connection.setConnectTimeout(mConfig.connectTimeout);
-
-        try {
-            connection.connect();
-        } catch (IOException e) {
-            ///当没有网络链接??????????
-            e.printStackTrace();
-            throw new DownloadException(DownloadException.EXCEPTION_IO_EXCEPTION, "IOException expected.", e);
-        }
-
-        return connection;
-    }
-
-    private void handleResponseCode(HttpURLConnection connection) {
-        int responseCode;
-        try {
-            responseCode = connection.getResponseCode();
-        } catch (IOException e) {
-            e.printStackTrace();
-            throw new DownloadException(DownloadException.EXCEPTION_IO_EXCEPTION, "IOException expected.", e);
-        }
-
-        if (responseCode != HttpURLConnection.HTTP_OK) {
-            Log.d(TAG, "DownloadThread#run(): connection的响应码: " + responseCode);
-            throw new DownloadException(DownloadException.EXCEPTION_IO_EXCEPTION, "The connection response code is " + responseCode);
-        }
-    }
-
-    private BufferedInputStream getBufferedInputStream(HttpURLConnection connection) {
-        ///获得网络连接connection的输入流对象
-        InputStream inputStream;
-        try {
-            inputStream = connection.getInputStream();
-        } catch (IOException e) {
-            e.printStackTrace();
-            throw new DownloadException(DownloadException.EXCEPTION_IO_EXCEPTION, "IOException expected.", e);
-        }
-
-        ///由输入流对象创建缓冲输入流对象（比inputStream效率要高）
-        ///https://blog.csdn.net/hfreeman2008/article/details/49174499
-        return new BufferedInputStream(inputStream);
-    }
-
-    private FileOutputStream getFileOutputStream(File saveFile) {
-        FileOutputStream fileOutputStream;
-        try {
-            fileOutputStream = new FileOutputStream(saveFile);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-            throw new DownloadException(DownloadException.EXCEPTION_FILE_NOT_FOUND, "The file is not found.", e);
-        }
-        return fileOutputStream;
-    }
-
-    private int inputStreamRead(BufferedInputStream bufferedInputStream, byte[] bytes) {
-        int result;
-        try {
-            result = bufferedInputStream.read(bytes);
-        } catch (IOException e) {
-            e.printStackTrace();
-            throw new DownloadException(DownloadException.EXCEPTION_IO_EXCEPTION, "IOException expected.", e);
-        }
-        return result;
-    }
-
-    /**
-     * Wrap a byte array into a buffer
-     *
-     * @param channel
-     * @param bytes
-     * @param readLength
-     */
-    private void channelWrite(FileChannel channel, byte[] bytes, int readLength) {
-        ByteBuffer buf = ByteBuffer.wrap(bytes, 0, readLength);
-        try {
-            channel.write(buf);
-        } catch (IOException e) {
-            e.printStackTrace();
-            throw new DownloadException(DownloadException.EXCEPTION_IO_EXCEPTION, "IOException expected.", e);
-        }
-    }
 }
