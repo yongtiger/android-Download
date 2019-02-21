@@ -1,4 +1,4 @@
-package cc.brainbook.study.mydownload.download.httpurlconnection.simple;
+package cc.brainbook.study.mydownload.threadhandler.simple;
 
 import android.util.Log;
 
@@ -10,12 +10,12 @@ import java.nio.channels.FileChannel;
 
 import android.os.Handler;
 
-import cc.brainbook.study.mydownload.download.httpurlconnection.simple.base.BaseDownloadThread;
-import cc.brainbook.study.mydownload.download.httpurlconnection.simple.bean.FileInfo;
-import cc.brainbook.study.mydownload.download.httpurlconnection.simple.config.Config;
-import cc.brainbook.study.mydownload.download.httpurlconnection.simple.exception.DownloadException;
-import cc.brainbook.study.mydownload.download.httpurlconnection.simple.handler.DownloadHandler;
-import cc.brainbook.study.mydownload.download.httpurlconnection.util.Util;
+import cc.brainbook.study.mydownload.threadhandler.simple.base.BaseDownloadThread;
+import cc.brainbook.study.mydownload.threadhandler.simple.bean.FileInfo;
+import cc.brainbook.study.mydownload.threadhandler.simple.config.Config;
+import cc.brainbook.study.mydownload.threadhandler.simple.exception.DownloadException;
+import cc.brainbook.study.mydownload.threadhandler.simple.handler.DownloadHandler;
+import cc.brainbook.study.mydownload.util.Util;
 
 public class DownloadThread extends BaseDownloadThread {
     private static final String TAG = "TAG";

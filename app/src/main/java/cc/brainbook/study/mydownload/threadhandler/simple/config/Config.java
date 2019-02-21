@@ -1,4 +1,4 @@
-package cc.brainbook.study.mydownload.download.httpurlconnection.simple.config;
+package cc.brainbook.study.mydownload.threadhandler.simple.config;
 
 public class Config {
 

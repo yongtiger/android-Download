@@ -1,4 +1,4 @@
-package cc.brainbook.study.mydownload.download.httpurlconnection.simple;
+package cc.brainbook.study.mydownload.threadhandler.simple;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
@@ -12,9 +12,9 @@ import android.view.View;
 import android.widget.TextView;
 
 import cc.brainbook.study.mydownload.R;
-import cc.brainbook.study.mydownload.download.httpurlconnection.simple.bean.FileInfo;
-import cc.brainbook.study.mydownload.download.httpurlconnection.simple.interfaces.DownloadCallback;
-import cc.brainbook.study.mydownload.download.httpurlconnection.simple.interfaces.OnProgressListener;
+import cc.brainbook.study.mydownload.threadhandler.simple.bean.FileInfo;
+import cc.brainbook.study.mydownload.threadhandler.simple.interfaces.DownloadCallback;
+import cc.brainbook.study.mydownload.threadhandler.simple.interfaces.OnProgressListener;
 
 public class MainActivity extends AppCompatActivity implements DownloadCallback {
     private static final String TAG = "TAG";

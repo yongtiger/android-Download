@@ -1,4 +1,4 @@
-package cc.brainbook.study.mydownload.download.httpurlconnection.simple.exception;
+package cc.brainbook.study.mydownload.threadhandler.simple.exception;
 
 import android.support.annotation.IntDef;
 

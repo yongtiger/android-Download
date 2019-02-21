@@ -1,4 +1,4 @@
-package cc.brainbook.study.mydownload.download.httpurlconnection.simple.base;
+package cc.brainbook.study.mydownload.threadhandler.simple.base;
 
 import android.os.Handler;
 import android.util.Log;
@@ -16,9 +16,9 @@ import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 
-import cc.brainbook.study.mydownload.download.httpurlconnection.simple.bean.FileInfo;
-import cc.brainbook.study.mydownload.download.httpurlconnection.simple.config.Config;
-import cc.brainbook.study.mydownload.download.httpurlconnection.simple.exception.DownloadException;
+import cc.brainbook.study.mydownload.threadhandler.simple.bean.FileInfo;
+import cc.brainbook.study.mydownload.threadhandler.simple.config.Config;
+import cc.brainbook.study.mydownload.threadhandler.simple.exception.DownloadException;
 
 public class BaseDownloadThread extends Thread {
     private static final String TAG = "TAG";

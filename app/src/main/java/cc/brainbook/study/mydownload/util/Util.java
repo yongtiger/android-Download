@@ -1,4 +1,4 @@
-package cc.brainbook.study.mydownload.download.httpurlconnection.util;
+package cc.brainbook.study.mydownload.util;
 
 import android.content.Context;
 import android.os.Environment;

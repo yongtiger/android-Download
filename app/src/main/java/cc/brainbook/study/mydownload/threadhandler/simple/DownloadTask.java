@@ -1,17 +1,17 @@
-package cc.brainbook.study.mydownload.download.httpurlconnection.simple;
+package cc.brainbook.study.mydownload.threadhandler.simple;
 
 import android.content.Context;
 import android.os.Handler;
 import android.text.TextUtils;
 import android.util.Log;
 
-import cc.brainbook.study.mydownload.download.httpurlconnection.simple.bean.FileInfo;
-import cc.brainbook.study.mydownload.download.httpurlconnection.simple.config.Config;
-import cc.brainbook.study.mydownload.download.httpurlconnection.simple.exception.DownloadException;
-import cc.brainbook.study.mydownload.download.httpurlconnection.simple.handler.DownloadHandler;
-import cc.brainbook.study.mydownload.download.httpurlconnection.simple.interfaces.DownloadCallback;
-import cc.brainbook.study.mydownload.download.httpurlconnection.simple.interfaces.OnProgressListener;
-import cc.brainbook.study.mydownload.download.httpurlconnection.util.Util;
+import cc.brainbook.study.mydownload.threadhandler.simple.bean.FileInfo;
+import cc.brainbook.study.mydownload.threadhandler.simple.config.Config;
+import cc.brainbook.study.mydownload.threadhandler.simple.exception.DownloadException;
+import cc.brainbook.study.mydownload.threadhandler.simple.handler.DownloadHandler;
+import cc.brainbook.study.mydownload.threadhandler.simple.interfaces.DownloadCallback;
+import cc.brainbook.study.mydownload.threadhandler.simple.interfaces.OnProgressListener;
+import cc.brainbook.study.mydownload.util.Util;
 
 public class DownloadTask {
     private static final String TAG = "TAG";

@@ -1,4 +1,4 @@
-package cc.brainbook.study.mydownload.download.httpurlconnection.simple.bean;
+package cc.brainbook.study.mydownload.threadhandler.simple.bean;
 
 public class FileInfo {
     public static final int FILE_STATUS_INIT = 0;
