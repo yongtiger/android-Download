@@ -22,7 +22,7 @@ public class MainActivity extends AppCompatActivity implements DownloadCallback 
 
     public TextView mTextView;
 
-    private DownloadTask downloadTask;
+    private DownloadTask mDownloadTask;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,12 +42,28 @@ public class MainActivity extends AppCompatActivity implements DownloadCallback 
         }
 
         ///实例化DownloadTask时传入Activity引用，方便操作view
-        downloadTask = new DownloadTask(this);
+        mDownloadTask = new DownloadTask(this);
 
     }
 
+    @Override
+    protected void onDestroy() {
+        Log.d(TAG, "============== MainActivity#onDestroy(): ==============");
+        stopDownload(mDownloadTask);
+
+        super.onDestroy();
+    }
+
     public void startDownload(View view) {
-//        downloadTask.setFileUrl("http://23.237.10.182/ljdy_v1.0.1.apk")
+        startDownload(mDownloadTask);
+    }
+
+    public void stopDownload(View view) {
+        stopDownload(mDownloadTask);
+    }
+
+    private void startDownload(DownloadTask downloadTask) {
+        //        downloadTask.setFileUrl("http://23.237.10.182/ljdy_v1.0.1.apk")
 //                .setFileName("ljdy_v1.0.1.apk")
 //                .setSavePath(DOWNLOAD_PATH)
 //                .setDownloadCallback(this)
@@ -88,11 +104,7 @@ public class MainActivity extends AppCompatActivity implements DownloadCallback 
                 .start();
     }
 
-    @Override
-    protected void onDestroy() {
-        Log.d(TAG, "============== MainActivity#onDestroy(): ==============");
-        super.onDestroy();
-
+    private void stopDownload(DownloadTask downloadTask) {
         if (downloadTask != null) {
             ///停止下载线程，避免内存泄漏
             downloadTask.stop();
