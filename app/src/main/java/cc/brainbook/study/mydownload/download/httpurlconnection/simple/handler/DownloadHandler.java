@@ -50,9 +50,7 @@ public class DownloadHandler extends Handler {
 
                 ///重置下载速度为0
                 if (mOnProgressListener != null) {
-                    mFileInfo.setDiffTimeMillis(0);
-                    mFileInfo.setDiffFinishedBytes(0);
-                    mOnProgressListener.onProgress(mFileInfo);
+                    resetFileInfoDiff(mFileInfo, mOnProgressListener);
                 }
 
                 ///下载完成回调接口DownloadCallback
@@ -69,9 +67,7 @@ public class DownloadHandler extends Handler {
 
                 ///重置下载速度为0
                 if (mOnProgressListener != null) {
-                    mFileInfo.setDiffTimeMillis(0);
-                    mFileInfo.setDiffFinishedBytes(0);
-                    mOnProgressListener.onProgress(mFileInfo);
+                    resetFileInfoDiff(mFileInfo, mOnProgressListener);
                 }
 
                 ///下载完成回调接口DownloadCallback
@@ -91,6 +87,12 @@ public class DownloadHandler extends Handler {
                 break;
         }
         super.handleMessage(msg);
+    }
+
+    private void resetFileInfoDiff(FileInfo fileInfo, OnProgressListener onProgressListener) {
+        fileInfo.setDiffTimeMillis(0);
+        fileInfo.setDiffFinishedBytes(0);
+        onProgressListener.onProgress(mFileInfo);
     }
 
 }
