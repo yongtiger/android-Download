@@ -27,10 +27,17 @@ public class DownloadHandler extends Handler {
     public void handleMessage(Message msg) {
         switch (msg.what) {
             case DOWNLOAD_COMPLETE:
-                Log.d(TAG, "DownloadTask#handleMessage(): msg.what = DOWNLOAD_COMPLETE");
+                Log.d(TAG, "DownloadHandler#handleMessage(): msg.what = DOWNLOAD_COMPLETE");
 
                 ///设置下载完成时间
                 mFileInfo.setEndTimeMillis(System.currentTimeMillis());
+
+                ///设置下载速度为0
+                if (mOnProgressListener != null) {
+                    mFileInfo.setDiffTimeMillis(0);
+                    mFileInfo.setDiffFinishedBytes(0);
+                    mOnProgressListener.onProgress(mFileInfo);
+                }
 
                 ///下载完成回调接口DownloadCallback
                 if (mDownloadCallback != null) {
@@ -39,11 +46,10 @@ public class DownloadHandler extends Handler {
 
                 break;
             case DOWNLOAD_PROGRESS:
-                Log.d(TAG, "DownloadTask#handleMessage(): msg.what = DOWNLOAD_PROGRESS");
+                Log.d(TAG, "DownloadHandler#handleMessage(): msg.what = DOWNLOAD_PROGRESS");
 
                 ///下载进度回调接口DownloadCallback
                 if (mOnProgressListener != null) {
-                    ///获取已经下载完的字节数、下载文件的总字节数、下载进度的时间（毫秒）、下载进度的下载字节数
                     mOnProgressListener.onProgress(mFileInfo);
                 }
 

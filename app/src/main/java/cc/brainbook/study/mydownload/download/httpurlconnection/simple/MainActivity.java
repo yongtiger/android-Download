@@ -96,8 +96,9 @@ public class MainActivity extends AppCompatActivity implements DownloadCallback 
                 .setOnProgressListener(new OnProgressListener() {
                     @Override
                     public void onProgress(FileInfo fileInfo) {
-                        int progress = (int) (fileInfo.getFinishedBytes() * 100 / fileInfo.getFileSize());
-                        long speed = fileInfo.getDiffFinishedBytes() / fileInfo.getDiffTimeMillis();
+                        ///避免除0异常
+                        int progress = fileInfo.getFinishedBytes() == 0 ? 0 : (int) (fileInfo.getFinishedBytes() * 100 / fileInfo.getFileSize());
+                        long speed = fileInfo.getDiffFinishedBytes() == 0 ? 0 : fileInfo.getDiffFinishedBytes() / fileInfo.getDiffTimeMillis();
                         mTextView.setText(progress + ", " + speed);
                     }
                 })

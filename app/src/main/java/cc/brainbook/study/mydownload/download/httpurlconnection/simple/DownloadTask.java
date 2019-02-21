@@ -130,6 +130,16 @@ public class DownloadTask {
             mFileInfo.setStatus(FileInfo.FILE_STATUS_STOP);
         }
 
+        ///设置下载停止时间
+        mFileInfo.setEndTimeMillis(System.currentTimeMillis());
+
+        ///设置下载速度为0
+        if (mOnProgressListener != null) {
+            mFileInfo.setDiffTimeMillis(0);
+            mFileInfo.setDiffFinishedBytes(0);
+            mOnProgressListener.onProgress(mFileInfo);
+        }
+
         mHandler = null;
     }
 

@@ -95,8 +95,8 @@ public class DownloadThread extends Thread {
                     channel.write(buf);
 
                     mFileInfo.setFinishedBytes(mFileInfo.getFinishedBytes() + readLength);
-                    Log.d(TAG, "DownloadTask#innerDownload(): thread name is: " + Thread.currentThread().getName());
-                    Log.d(TAG, "DownloadTask#innerDownload()#finishedBytes: " + mFileInfo.getFinishedBytes() + ", fileSize: " + mFileInfo.getFileSize());
+                    Log.d(TAG, "DownloadThread#run(): thread name is: " + Thread.currentThread().getName());
+                    Log.d(TAG, "DownloadThread#run()#finishedBytes: " + mFileInfo.getFinishedBytes() + ", fileSize: " + mFileInfo.getFileSize());
 
                     if (mHasOnProgressListener) {
                         ///控制更新下载进度的周期
@@ -112,28 +112,20 @@ public class DownloadThread extends Thread {
 
                     ///停止下载线程
                     if (mFileInfo.getStatus() == FileInfo.FILE_STATUS_STOP) {
-                        Log.d(TAG, "DownloadTask#innerDownload()#mFileInfo.getStatus(): FILE_STATUS_STOP");
+                        Log.d(TAG, "DownloadThread#run()#mFileInfo.getStatus(): FILE_STATUS_STOP");
                         return;
                     }
-                }
-
-                ///下载完成时，设置进度为100、下载速度为0
-                if (mHasOnProgressListener) {
-                    mFileInfo.setDiffTimeMillis(1);   ///避免除0异常
-                    mFileInfo.setDiffFinishedBytes(0);
-                    ///发送消息：更新下载进度
-                    mHandler.obtainMessage(DownloadHandler.DOWNLOAD_PROGRESS).sendToTarget();
                 }
 
                 mFileInfo.setStatus(FileInfo.FILE_STATUS_COMPLETE);
 
                 ///发送消息：下载完成
-                Log.d(TAG, "DownloadTask#innerDownload()#mHandler.obtainMessage(DOWNLOAD_COMPLETE, mFileInfo).sendToTarget();");
+                Log.d(TAG, "DownloadThread#run()#mHandler.obtainMessage(DOWNLOAD_COMPLETE, mFileInfo).sendToTarget();");
                 ///因为要传递的不是单一数据类型，所以不能使用数组，只能用类FileInfo
                 mHandler.obtainMessage(DownloadHandler.DOWNLOAD_COMPLETE).sendToTarget();
 
             } else {
-                Log.d(TAG, "DownloadTask#innerDownload()#connection的响应码: " + connection.getResponseCode());
+                Log.d(TAG, "DownloadThread#run(): connection的响应码: " + connection.getResponseCode());
                 throw new DownloadException(DownloadException.EXCEPTION_IO_EXCEPTION, "The connection response code is " + connection.getResponseCode());
             }
         } catch (MalformedURLException e) {
