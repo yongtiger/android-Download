@@ -1,12 +1,9 @@
 package cc.brainbook.study.mydownload.download.httpurlconnection.simple;
 
 import android.content.Context;
-import android.os.Environment;
 import android.os.Handler;
 import android.text.TextUtils;
 import android.util.Log;
-
-import java.io.File;
 
 import cc.brainbook.study.mydownload.download.httpurlconnection.simple.bean.FileInfo;
 import cc.brainbook.study.mydownload.download.httpurlconnection.simple.config.Config;

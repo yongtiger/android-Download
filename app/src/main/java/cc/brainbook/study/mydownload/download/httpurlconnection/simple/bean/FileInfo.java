@@ -6,7 +6,7 @@ public class FileInfo {
     public static final int FILE_STATUS_STOP = 2;
     public static final int FILE_STATUS_COMPLETE = 3;
 
-    private volatile int status;
+    private volatile int status;    ///设置停止标志（并且声明为volatile），https://blog.csdn.net/changlei_shennan/article/details/44039905
     private String fileUrl;
     private String fileName;
     private String savePath;

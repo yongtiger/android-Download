@@ -19,7 +19,9 @@ public class DownloadHandler extends Handler {
     private DownloadCallback mDownloadCallback;
     private OnProgressListener mOnProgressListener;
 
-    public DownloadHandler(FileInfo mFileInfo, DownloadCallback mDownloadCallback, OnProgressListener mOnProgressListener) {
+    public DownloadHandler(FileInfo mFileInfo,
+                           DownloadCallback mDownloadCallback,
+                           OnProgressListener mOnProgressListener) {
         this.mFileInfo = mFileInfo;
         this.mDownloadCallback = mDownloadCallback;
         this.mOnProgressListener = mOnProgressListener;

@@ -8,8 +8,6 @@ import java.io.File;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 
-import cc.brainbook.study.mydownload.download.httpurlconnection.simple.exception.DownloadException;
-
 public class Util {
 
     /**
