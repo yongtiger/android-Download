@@ -69,6 +69,8 @@ public class BaseDownloadThread extends Thread {
         connection.setConnectTimeout(mConfig.connectTimeout);
 
         try {
+            ///Operations that depend on being connected, like getInputStream, getOutputStream, etc, will implicitly perform the connection, if necessary.
+            ///https://stackoverflow.com/questions/16122999/java-urlconnection-when-do-i-need-to-use-the-connect-method
             connection.connect();
         } catch (IOException e) {
             ///当没有网络链接
