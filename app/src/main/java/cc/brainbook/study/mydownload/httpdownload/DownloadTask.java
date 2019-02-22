@@ -1,17 +1,19 @@
-package cc.brainbook.study.mydownload.threadhandler.simple;
+package cc.brainbook.study.mydownload.httpdownload;
 
 import android.content.Context;
 import android.os.Handler;
 import android.text.TextUtils;
 import android.util.Log;
 
-import cc.brainbook.study.mydownload.threadhandler.simple.bean.FileInfo;
-import cc.brainbook.study.mydownload.threadhandler.simple.config.Config;
-import cc.brainbook.study.mydownload.threadhandler.simple.exception.DownloadException;
-import cc.brainbook.study.mydownload.threadhandler.simple.handler.DownloadHandler;
-import cc.brainbook.study.mydownload.threadhandler.simple.interfaces.DownloadCallback;
-import cc.brainbook.study.mydownload.threadhandler.simple.interfaces.OnProgressListener;
-import cc.brainbook.study.mydownload.util.Util;
+import java.io.File;
+
+import cc.brainbook.study.mydownload.httpdownload.bean.FileInfo;
+import cc.brainbook.study.mydownload.httpdownload.config.Config;
+import cc.brainbook.study.mydownload.httpdownload.exception.DownloadException;
+import cc.brainbook.study.mydownload.httpdownload.handler.DownloadHandler;
+import cc.brainbook.study.mydownload.httpdownload.interfaces.DownloadEvent;
+import cc.brainbook.study.mydownload.httpdownload.interfaces.OnProgressListener;
+import cc.brainbook.study.mydownload.httpdownload.util.Util;
 
 public class DownloadTask {
     private static final String TAG = "TAG";
@@ -62,14 +64,14 @@ public class DownloadTask {
         mConfig.progressInterval = progressInterval;
         return this;
     }
-    private DownloadCallback mDownloadCallback;
-    public DownloadTask setDownloadCallback(DownloadCallback downloadCallback) {
-        mDownloadCallback = downloadCallback;
-        return this;
-    }
     private OnProgressListener mOnProgressListener;
     public DownloadTask setOnProgressListener(OnProgressListener onProgressListener) {
         mOnProgressListener = onProgressListener;
+        return this;
+    }
+    private DownloadEvent mDownloadEvent;
+    public DownloadTask setDownloadEvent(DownloadEvent downloadEvent) {
+        mDownloadEvent = downloadEvent;
         return this;
     }
 
@@ -81,6 +83,7 @@ public class DownloadTask {
 
         ///避免重复启动下载线程
         if (mFileInfo.getStatus() != FileInfo.FILE_STATUS_START) {
+            ///更新下载文件状态：下载开始
             mFileInfo.setStatus(FileInfo.FILE_STATUS_START);
 
             ///重置已经下载字节数
@@ -98,10 +101,9 @@ public class DownloadTask {
                 }
             }
 
-            mHandler = new DownloadHandler(mFileInfo, mDownloadCallback, mOnProgressListener);
+            mHandler = new DownloadHandler(mFileInfo, mDownloadEvent, mOnProgressListener);
 
-            DownloadThread downloadThread = new DownloadThread(mFileInfo, mConfig, mHandler, mOnProgressListener != null);
-            downloadThread.start();
+            new DownloadThread(mConfig, mFileInfo, mHandler, mOnProgressListener != null).start();
         }
     }
 
@@ -111,7 +113,11 @@ public class DownloadTask {
     public void stop() {
         Log.d(TAG, "DownloadTask#stop(): ");
         if (mFileInfo.getStatus() == FileInfo.FILE_STATUS_START) {
+            ///更新下载文件状态：下载停止
             mFileInfo.setStatus(FileInfo.FILE_STATUS_STOP);
+
+            ///删除下载文件
+            new File(mFileInfo.getSavePath() + mFileInfo.getFileName()).delete();
         }
     }
 

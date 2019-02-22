@@ -1,4 +1,4 @@
-package cc.brainbook.study.mydownload.threadhandler.simple;
+package cc.brainbook.study.mydownload;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
@@ -11,12 +11,12 @@ import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
-import cc.brainbook.study.mydownload.R;
-import cc.brainbook.study.mydownload.threadhandler.simple.bean.FileInfo;
-import cc.brainbook.study.mydownload.threadhandler.simple.interfaces.DownloadCallback;
-import cc.brainbook.study.mydownload.threadhandler.simple.interfaces.OnProgressListener;
+import cc.brainbook.study.mydownload.httpdownload.DownloadTask;
+import cc.brainbook.study.mydownload.httpdownload.bean.FileInfo;
+import cc.brainbook.study.mydownload.httpdownload.interfaces.DownloadEvent;
+import cc.brainbook.study.mydownload.httpdownload.interfaces.OnProgressListener;
 
-public class MainActivity extends AppCompatActivity implements DownloadCallback {
+public class MainActivity extends AppCompatActivity implements DownloadEvent {
     private static final String TAG = "TAG";
     public static final String DOWNLOAD_PATH = Environment.getExternalStorageDirectory().getAbsolutePath() + "/Downloads/";
 
@@ -63,15 +63,17 @@ public class MainActivity extends AppCompatActivity implements DownloadCallback 
     }
 
     private void startDownload(DownloadTask downloadTask) {
-        //        downloadTask.setFileUrl("http://23.237.10.182/ljdy_v1.0.1.apk")
+//        downloadTask.setFileUrl("http://23.237.10.182/ljdy_v1.0.1.apk")
 //                .setFileName("ljdy_v1.0.1.apk")
 //                .setSavePath(DOWNLOAD_PATH)
 //                .setDownloadCallback(this)
 //                .setOnProgressListener(new OnProgressListener() {
 //                    @Override
-//                    public void onProgress(FileInfo fileInfo) {
-//                        int progress = (int) (fileInfo.getFinishedBytes() * 100 / fileInfo.getFileSize());
-//                        long speed = fileInfo.getDiffFinishedBytes() / fileInfo.getDiffTimeMillis();
+//                    public void onProgress(FileInfo fileInfo, long diffTimeMillis, long diffFinishedBytes) {
+//                        ///避免除0异常
+//                        int progress = fileInfo.getFinishedBytes() == 0 ? 0 : (int) (fileInfo.getFinishedBytes() * 100 / fileInfo.getFileSize());
+//                        long speed = diffFinishedBytes == 0 ? 0 : diffFinishedBytes / diffTimeMillis;
+//
 //                        mTextView.setText(progress + ", " + speed);
 //                    }
 //                })
@@ -79,13 +81,14 @@ public class MainActivity extends AppCompatActivity implements DownloadCallback 
         downloadTask.setFileUrl("http://23.237.10.182/smqq.info.rar")
                 .setFileName("smqq.info.rar")
                 .setSavePath(DOWNLOAD_PATH)
-                .setDownloadCallback(this)
+                .setDownloadEvent(this)
                 .setOnProgressListener(new OnProgressListener() {
                     @Override
-                    public void onProgress(FileInfo fileInfo) {
+                    public void onProgress(FileInfo fileInfo, long diffTimeMillis, long diffFinishedBytes) {
                         ///避免除0异常
                         int progress = fileInfo.getFinishedBytes() == 0 ? 0 : (int) (fileInfo.getFinishedBytes() * 100 / fileInfo.getFileSize());
-                        long speed = fileInfo.getDiffFinishedBytes() == 0 ? 0 : fileInfo.getDiffFinishedBytes() / fileInfo.getDiffTimeMillis();
+                        long speed = diffFinishedBytes == 0 ? 0 : diffFinishedBytes / diffTimeMillis;
+
                         mTextView.setText(progress + ", " + speed);
                     }
                 })
@@ -93,13 +96,14 @@ public class MainActivity extends AppCompatActivity implements DownloadCallback 
 //        downloadTask.setFileUrl("http://23.237.10.182/bbs.rar")
 //                .setFileName("bbs.rar")
 //                .setSavePath(DOWNLOAD_PATH)
-//                .setDownloadCallback(this)
+//                .setDownloadEvent(this)
 //                .setOnProgressListener(new OnProgressListener() {
 //                    @Override
-//                    public void onProgress(FileInfo fileInfo) {
+//                    public void onProgress(FileInfo fileInfo, long diffTimeMillis, long diffFinishedBytes) {
 //                        ///避免除0异常
 //                        int progress = fileInfo.getFinishedBytes() == 0 ? 0 : (int) (fileInfo.getFinishedBytes() * 100 / fileInfo.getFileSize());
-//                        long speed = fileInfo.getDiffFinishedBytes() == 0 ? 0 : fileInfo.getDiffFinishedBytes() / fileInfo.getDiffTimeMillis();
+//                        long speed = diffFinishedBytes == 0 ? 0 : diffFinishedBytes / diffTimeMillis;
+//
 //                        mTextView.setText(progress + ", " + speed);
 //                    }
 //                })
@@ -114,7 +118,7 @@ public class MainActivity extends AppCompatActivity implements DownloadCallback 
     }
 
 
-    /* ----------- [实现下载回调接口DownloadCallback] ----------- */
+    /* ----------- [实现下载事件接口DownloadEvent] ----------- */
     @Override
     public void onStart(FileInfo fileInfo) {
         Log.d(TAG, "MainActivity#onStart()#fileInfo: " + fileInfo);
@@ -131,14 +135,14 @@ public class MainActivity extends AppCompatActivity implements DownloadCallback 
         String fileUrl = fileInfo.getFileUrl();
         ///下载文件名
         String fileName = fileInfo.getFileName();
-        ///下载文件保存路径
-        String savePath = fileInfo.getSavePath();
         ///下载文件大小
         long fileSize = fileInfo.getFileSize();
-        ///下载开始时间
-        long startTime = fileInfo.getStartTimeMillis();
-        ///下载结束时间
-        long endTime = fileInfo.getEndTimeMillis();
+        ///下载文件保存路径
+        String savePath = fileInfo.getSavePath();
+        ///已经下载完的总耗时（毫秒）
+        long finishedTimeMillis = fileInfo.getFinishedTimeMillis();
+        ///已经下载完的总字节数
+        long finishedBytes = fileInfo.getFinishedBytes();
 
         Log.d(TAG, "MainActivity#onComplete()#fileInfo: " + fileInfo);
     }

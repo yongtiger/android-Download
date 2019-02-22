@@ -1,4 +1,4 @@
-package cc.brainbook.study.mydownload.util;
+package cc.brainbook.study.mydownload.httpdownload.util;
 
 import android.content.Context;
 import android.os.Environment;
@@ -9,7 +9,6 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 
 public class Util {
-
     /**
      * 由HttpURLConnection获得文件名
      *
@@ -105,4 +104,5 @@ public class Util {
     public static boolean mkdir(String path) {
         return mkdir(new File(path));
     }
+
 }

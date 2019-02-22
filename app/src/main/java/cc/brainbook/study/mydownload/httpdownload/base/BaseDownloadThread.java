@@ -1,6 +1,5 @@
-package cc.brainbook.study.mydownload.threadhandler.simple.base;
+package cc.brainbook.study.mydownload.httpdownload.base;
 
-import android.os.Handler;
 import android.util.Log;
 
 import java.io.BufferedInputStream;
@@ -16,23 +15,17 @@ import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 
-import cc.brainbook.study.mydownload.threadhandler.simple.bean.FileInfo;
-import cc.brainbook.study.mydownload.threadhandler.simple.config.Config;
-import cc.brainbook.study.mydownload.threadhandler.simple.exception.DownloadException;
+import cc.brainbook.study.mydownload.httpdownload.config.Config;
+import cc.brainbook.study.mydownload.httpdownload.exception.DownloadException;
+import cc.brainbook.study.mydownload.httpdownload.util.Util;
 
 public class BaseDownloadThread extends Thread {
     private static final String TAG = "TAG";
 
-    protected FileInfo mFileInfo;
     protected Config mConfig;
-    protected boolean mHasOnProgressListener;
-    protected Handler mHandler;
 
-    public BaseDownloadThread(FileInfo fileInfo, Config config, Handler handler, boolean hasOnProgressListener) {
-        this.mFileInfo = fileInfo;
+    public BaseDownloadThread(Config config) {
         this.mConfig = config;
-        this.mHandler = handler;
-        this.mHasOnProgressListener = hasOnProgressListener;
     }
 
     /**
@@ -68,15 +61,15 @@ public class BaseDownloadThread extends Thread {
 
         connection.setConnectTimeout(mConfig.connectTimeout);
 
-        try {
-            ///Operations that depend on being connected, like getInputStream, getOutputStream, etc, will implicitly perform the connection, if necessary.
-            ///https://stackoverflow.com/questions/16122999/java-urlconnection-when-do-i-need-to-use-the-connect-method
-            connection.connect();
-        } catch (IOException e) {
-            ///当没有网络链接
-            e.printStackTrace();
-            throw new DownloadException(DownloadException.EXCEPTION_IO_EXCEPTION, "IOException expected.", e);
-        }
+//        try {
+//            ///Operations that depend on being connected, like getInputStream, getOutputStream, etc, will implicitly perform the connection, if necessary.
+//            ///https://stackoverflow.com/questions/16122999/java-urlconnection-when-do-i-need-to-use-the-connect-method
+//            connection.connect();
+//        } catch (IOException e) {
+//            ///当没有网络链接
+//            e.printStackTrace();
+//            throw new DownloadException(DownloadException.EXCEPTION_IO_EXCEPTION, "IOException expected.", e);
+//        }
 
         return connection;
     }
@@ -101,6 +94,20 @@ public class BaseDownloadThread extends Thread {
             Log.d(TAG, "DownloadThread#run(): connection的响应码: " + responseCode);
             throw new DownloadException(DownloadException.EXCEPTION_IO_EXCEPTION, "The connection response code is " + responseCode);
         }
+    }
+
+    /**
+     * 由网络连接获得文件名
+     *
+     * @param connection
+     * @return
+     */
+    protected String getUrlFileName(HttpURLConnection connection) {
+        String filename = Util.getUrlFileName(connection);
+        if (filename.isEmpty()) {
+            throw new DownloadException(DownloadException.EXCEPTION_FILE_NAME_NULL, "The file name cannot be null.");
+        }
+        return filename;
     }
 
     /**
