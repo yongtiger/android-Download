@@ -41,11 +41,11 @@ public class DownloadThread extends Thread{
         ///由下载文件的URL网址建立网络连接
         HttpURLConnection connection = HttpDownloadUtil.openConnection(mFileInfo.getFileUrl(), mConfig.connectTimeout);
 
-        ///处理网络连接的响应码，如果网络连接connection的响应码为200，则开始下载过程，否则抛出异常
-        HttpDownloadUtil.handleResponseCode(connection, HttpURLConnection.HTTP_OK);
-
         ///发起网络连接
         HttpDownloadUtil.connect(connection);
+
+        ///处理网络连接的响应码，如果网络连接connection的响应码为200，则开始下载过程，否则抛出异常
+        HttpDownloadUtil.handleResponseCode(connection, HttpURLConnection.HTTP_OK);
 
         ///由网络连接获得文件名
         if (mFileInfo.getFileName().isEmpty()) {

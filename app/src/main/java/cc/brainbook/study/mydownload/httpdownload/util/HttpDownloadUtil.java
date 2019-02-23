@@ -14,9 +14,7 @@ import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 
-import cc.brainbook.study.mydownload.httpdownload.config.Config;
 import cc.brainbook.study.mydownload.httpdownload.exception.DownloadException;
-import cc.brainbook.study.mydownload.httpdownload.util.Util;
 
 public class HttpDownloadUtil extends Thread {
 
