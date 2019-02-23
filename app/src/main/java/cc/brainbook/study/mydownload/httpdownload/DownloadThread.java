@@ -126,7 +126,7 @@ public class DownloadThread extends Thread{
         ///关闭连接
         connection.disconnect();
         ///关闭流Closeable
-        Util.closeIO(bufferedInputStream, fileOutputStream);
+        Util.closeIO(bufferedInputStream, fileOutputStream, channel);
     }
 
 }
