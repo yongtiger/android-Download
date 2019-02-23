@@ -10,15 +10,16 @@ import java.nio.channels.FileChannel;
 
 import android.os.Handler;
 
-import cc.brainbook.study.mydownload.httpdownload.base.BaseDownloadThread;
 import cc.brainbook.study.mydownload.httpdownload.bean.FileInfo;
 import cc.brainbook.study.mydownload.httpdownload.config.Config;
 import cc.brainbook.study.mydownload.httpdownload.handler.DownloadHandler;
+import cc.brainbook.study.mydownload.httpdownload.util.HttpDownloadUtil;
 import cc.brainbook.study.mydownload.httpdownload.util.Util;
 
-public class DownloadThread extends BaseDownloadThread {
+public class DownloadThread extends Thread{
     private static final String TAG = "TAG";
 
+    private Config mConfig;
     private FileInfo mFileInfo;
     private Handler mHandler;
     private boolean mHasOnProgressListener;
@@ -27,7 +28,7 @@ public class DownloadThread extends BaseDownloadThread {
                           FileInfo fileInfo,
                           Handler handler,
                           boolean hasOnProgressListener) {
-        super(config);
+        this.mConfig = config;
         this.mFileInfo = fileInfo;
         this.mHandler = handler;
         this.mHasOnProgressListener = hasOnProgressListener;
@@ -37,25 +38,29 @@ public class DownloadThread extends BaseDownloadThread {
     public void run() {
         super.run();
 
-        ///由下载文件的URL网址建立Http网络连接connection
-        HttpURLConnection connection = openConnection(mFileInfo.getFileUrl());
+        ///由下载文件的URL网址建立网络连接
+        HttpURLConnection connection = HttpDownloadUtil.openConnection(mFileInfo.getFileUrl(), mConfig.connectTimeout);
 
-        ///如果网络连接connection的响应码为200，则开始下载过程，否则抛出异常
-        handleResponseCode(connection);
+        ///处理网络连接的响应码，如果网络连接connection的响应码为200，则开始下载过程，否则抛出异常
+        HttpDownloadUtil.handleResponseCode(connection, HttpURLConnection.HTTP_OK);
 
-        ///获得下载文件名
+        ///发起网络连接
+        HttpDownloadUtil.connect(connection);
+
+        ///由网络连接获得文件名
         if (mFileInfo.getFileName().isEmpty()) {
-            mFileInfo.setFileName(getUrlFileName(connection));
+            mFileInfo.setFileName(HttpDownloadUtil.getUrlFileName(connection));
         }
-        ///获得文件长度（建议用long类型，int类型最大为2GB）
+        ///由网络连接获得文件长度（建议用long类型，int类型最大为2GB）
         mFileInfo.setFileSize(connection.getContentLength());
 
-        ///获得网络连接connection的输入流对象
-        BufferedInputStream bufferedInputStream = getBufferedInputStream(connection);
+        ///获得网络连接的缓冲输入流对象BufferedInputStream
+        BufferedInputStream bufferedInputStream = HttpDownloadUtil.getBufferedInputStream(connection);
 
-        ///创建文件输出流对象
+        ///获得保存文件的输出流对象
         File saveFile = new File(mFileInfo.getSavePath(), mFileInfo.getFileName());
-        FileOutputStream fileOutputStream = getFileOutputStream(saveFile);
+        FileOutputStream fileOutputStream = HttpDownloadUtil.getFileOutputStream(saveFile);
+        ///由文件的输出流对象获得FileChannel对象
         FileChannel channel = fileOutputStream.getChannel();
 
         ///发送消息：下载开始
@@ -75,9 +80,9 @@ public class DownloadThread extends BaseDownloadThread {
         byte[] bytes = new byte[mConfig.bufferSize];
         ///每次循环读取的内容长度，如为-1表示输入流已经读取结束
         int readLength;
-        while ((readLength = inputStreamRead(bufferedInputStream, bytes)) != -1) {
+        while ((readLength = HttpDownloadUtil.inputStreamRead(bufferedInputStream, bytes)) != -1) {
             ///写入字节缓冲区内容到文件输出流
-            channelWrite(channel, bytes, readLength);
+            HttpDownloadUtil.channelWrite(channel, bytes, readLength);
 
             ///更新已经下载完的总耗时（毫秒）
             mFileInfo.setFinishedTimeMillis(System.currentTimeMillis() - startTimeMillis);

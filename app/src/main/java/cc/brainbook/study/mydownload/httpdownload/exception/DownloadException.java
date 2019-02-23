@@ -12,7 +12,8 @@ public class DownloadException extends RuntimeException {
     public static final int EXCEPTION_MALFORMED_URL = 3;
     public static final int EXCEPTION_UNKNOWN_HOST = 4;
     public static final int EXCEPTION_IO_EXCEPTION = 5;
-    public static final int EXCEPTION_SAVE_PATH_MKDIR = 6;
+    public static final int EXCEPTION_PROTOCOL_EXCEPTION = 6;
+    public static final int EXCEPTION_SAVE_PATH_MKDIR = 7;
 
     private int code;
 
@@ -53,6 +54,7 @@ public class DownloadException extends RuntimeException {
             EXCEPTION_MALFORMED_URL,
             EXCEPTION_UNKNOWN_HOST,
             EXCEPTION_IO_EXCEPTION,
+            EXCEPTION_PROTOCOL_EXCEPTION,
             EXCEPTION_SAVE_PATH_MKDIR})
     @Retention(RetentionPolicy.SOURCE)
     public @interface ExceptionType {}

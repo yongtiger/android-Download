@@ -10,30 +10,6 @@ import java.net.HttpURLConnection;
 
 public class Util {
     /**
-     * 由HttpURLConnection获得文件名
-     *
-     * @param connection
-     * @return
-     */
-    public static String getUrlFileName(HttpURLConnection connection) {
-        String filename = "";
-        String disposition = connection.getHeaderField("Content-Disposition");
-        if (disposition != null) {
-            // extracts file name from header field
-            int index = disposition.indexOf("filename=");
-            if (index > 0) {
-                filename = disposition.substring(index + 10,
-                        disposition.length() - 1);
-            }
-        }
-        if (filename.length() == 0) {
-            String path = connection.getURL().getPath();
-            filename = new File(path).getName();
-        }
-        return filename;
-    }
-
-    /**
      * 关闭流Closeable
      *
      * @param closeables

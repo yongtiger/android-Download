@@ -1,6 +1,4 @@
-package cc.brainbook.study.mydownload.httpdownload.base;
-
-import android.util.Log;
+package cc.brainbook.study.mydownload.httpdownload.util;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -10,6 +8,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
+import java.net.ProtocolException;
 import java.net.URL;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
@@ -19,23 +18,27 @@ import cc.brainbook.study.mydownload.httpdownload.config.Config;
 import cc.brainbook.study.mydownload.httpdownload.exception.DownloadException;
 import cc.brainbook.study.mydownload.httpdownload.util.Util;
 
-public class BaseDownloadThread extends Thread {
-    private static final String TAG = "TAG";
-
-    protected Config mConfig;
-
-    public BaseDownloadThread(Config config) {
-        this.mConfig = config;
-    }
+public class HttpDownloadUtil extends Thread {
 
     /**
      * 由下载文件的URL网址建立网络连接
      *
      * @param fileUrl
+     * @param connectTimeout
+     * @return
+     */
+    public static HttpURLConnection openConnection(String fileUrl, int connectTimeout) {
+        return openConnection(fileUrl, "GET", connectTimeout);
+    }
+    /**
+     * 由下载文件的URL网址建立网络连接
+     *
+     * @param fileUrl
+     * @param connectTimeout
      * @throws MalformedURLException
      * @throws IOException
      */
-    protected HttpURLConnection openConnection(String fileUrl) {
+    public static HttpURLConnection openConnection(String fileUrl, String requestMethod, int connectTimeout) {
         URL url;
         try {
             url = new URL(fileUrl);
@@ -59,40 +62,57 @@ public class BaseDownloadThread extends Thread {
             throw new DownloadException(DownloadException.EXCEPTION_IO_EXCEPTION, "IOException expected.", e);
         }
 
-        connection.setConnectTimeout(mConfig.connectTimeout);
+        try {
+            connection.setRequestMethod(requestMethod);
+        } catch (ProtocolException e) {
+            e.printStackTrace();
+            throw new DownloadException(DownloadException.EXCEPTION_PROTOCOL_EXCEPTION, "ProtocolException expected.", e);
+        }
 
-//        try {
-//            ///Operations that depend on being connected, like getInputStream, getOutputStream, etc, will implicitly perform the connection, if necessary.
-//            ///https://stackoverflow.com/questions/16122999/java-urlconnection-when-do-i-need-to-use-the-connect-method
-//            connection.connect();
-//        } catch (IOException e) {
-//            ///当没有网络链接
-//            e.printStackTrace();
-//            throw new DownloadException(DownloadException.EXCEPTION_IO_EXCEPTION, "IOException expected.", e);
-//        }
+        connection.setConnectTimeout(connectTimeout);
 
         return connection;
     }
 
     /**
-     * 处理响应码
+     * 发起网络连接
      *
-     * 如果状态为正常（200）则继续运行，否则抛出异常
+     * Operations that depend on being connected, like getInputStream, getOutputStream, etc, will implicitly perform the connection, if necessary.
+     * https://stackoverflow.com/questions/16122999/java-urlconnection-when-do-i-need-to-use-the-connect-method
      *
      * @param connection
      */
-    protected void handleResponseCode(HttpURLConnection connection) {
-        int responseCode;
+    public static void connect(HttpURLConnection connection) {
         try {
-            responseCode = connection.getResponseCode();
+            ///Operations that depend on being connected, like getInputStream, getOutputStream, etc, will implicitly perform the connection, if necessary.
+            ///https://stackoverflow.com/questions/16122999/java-urlconnection-when-do-i-need-to-use-the-connect-method
+            connection.connect();
+        } catch (IOException e) {
+            ///当没有网络链接
+            e.printStackTrace();
+            throw new DownloadException(DownloadException.EXCEPTION_IO_EXCEPTION, "IOException expected.", e);
+        }
+    }
+
+    /**
+     * 处理网络连接的响应码
+     *
+     * 如果网络连接的响应码等于给定的响应码则继续运行，否则抛出异常
+     *
+     * @param connection
+     * @param responseCode
+     */
+    public static void handleResponseCode(HttpURLConnection connection, int responseCode) {
+        int code;
+        try {
+            code = connection.getResponseCode();
         } catch (IOException e) {
             e.printStackTrace();
             throw new DownloadException(DownloadException.EXCEPTION_IO_EXCEPTION, "IOException expected.", e);
         }
 
-        if (responseCode != HttpURLConnection.HTTP_OK) {
-            Log.d(TAG, "DownloadThread#run(): connection的响应码: " + responseCode);
-            throw new DownloadException(DownloadException.EXCEPTION_IO_EXCEPTION, "The connection response code is " + responseCode);
+        if (code != responseCode) {
+            throw new DownloadException(DownloadException.EXCEPTION_IO_EXCEPTION, "The connection response code is " + code);
         }
     }
 
@@ -102,8 +122,21 @@ public class BaseDownloadThread extends Thread {
      * @param connection
      * @return
      */
-    protected String getUrlFileName(HttpURLConnection connection) {
-        String filename = Util.getUrlFileName(connection);
+    public static String getUrlFileName(HttpURLConnection connection) {
+        String filename = "";
+        String disposition = connection.getHeaderField("Content-Disposition");
+        if (disposition != null) {
+            // extracts file name from header field
+            int index = disposition.indexOf("filename=");
+            if (index > 0) {
+                filename = disposition.substring(index + 10,
+                        disposition.length() - 1);
+            }
+        }
+        if (filename.length() == 0) {
+            String path = connection.getURL().getPath();
+            filename = new File(path).getName();
+        }
         if (filename.isEmpty()) {
             throw new DownloadException(DownloadException.EXCEPTION_FILE_NAME_NULL, "The file name cannot be null.");
         }
@@ -119,7 +152,7 @@ public class BaseDownloadThread extends Thread {
      * @param connection
      * @return
      */
-    protected BufferedInputStream getBufferedInputStream(HttpURLConnection connection) {
+    public static BufferedInputStream getBufferedInputStream(HttpURLConnection connection) {
         ///获得网络连接connection的输入流对象
         InputStream inputStream;
         try {
@@ -142,7 +175,7 @@ public class BaseDownloadThread extends Thread {
      * @param bytes
      * @return
      */
-    protected int inputStreamRead(BufferedInputStream bufferedInputStream, byte[] bytes) {
+    public static int inputStreamRead(BufferedInputStream bufferedInputStream, byte[] bytes) {
         int result;
         try {
             result = bufferedInputStream.read(bytes);
@@ -154,12 +187,12 @@ public class BaseDownloadThread extends Thread {
     }
 
     /**
-     * 获得保存文件的FileOutputStream
+     * 获得保存文件的输出流对象
      *
      * @param saveFile
      * @return
      */
-    protected FileOutputStream getFileOutputStream(File saveFile) {
+    public static FileOutputStream getFileOutputStream(File saveFile) {
         FileOutputStream fileOutputStream;
         try {
             fileOutputStream = new FileOutputStream(saveFile);
@@ -177,7 +210,7 @@ public class BaseDownloadThread extends Thread {
      * @param bytes
      * @param readLength
      */
-    protected void channelWrite(FileChannel channel, byte[] bytes, int readLength) {
+    public static void channelWrite(FileChannel channel, byte[] bytes, int readLength) {
         ///Wrap a byte array into a buffer
         ByteBuffer buf = ByteBuffer.wrap(bytes, 0, readLength);
         try {
