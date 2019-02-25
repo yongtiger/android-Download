@@ -21,12 +21,12 @@ public class DownloadThread extends Thread{
 
     private Config mConfig;
     private FileInfo mFileInfo;
-    private Handler mHandler;
+    private DownloadHandler mHandler;
     private boolean mHasOnProgressListener;
 
     public DownloadThread(Config config,
                           FileInfo fileInfo,
-                          Handler handler,
+                          DownloadHandler handler,
                           boolean hasOnProgressListener) {
         this.mConfig = config;
         this.mFileInfo = fileInfo;

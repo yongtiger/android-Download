@@ -33,7 +33,7 @@ public class DownloadTask {
 
     private Config mConfig = new Config();
 
-    private Handler mHandler;
+    private DownloadHandler mHandler;
 
     public DownloadTask(Context context) {
         mContext = context;
