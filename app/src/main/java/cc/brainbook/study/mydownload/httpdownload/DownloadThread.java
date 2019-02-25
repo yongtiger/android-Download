@@ -8,8 +8,6 @@ import java.io.FileOutputStream;
 import java.net.HttpURLConnection;
 import java.nio.channels.FileChannel;
 
-import android.os.Handler;
-
 import cc.brainbook.study.mydownload.httpdownload.bean.FileInfo;
 import cc.brainbook.study.mydownload.httpdownload.config.Config;
 import cc.brainbook.study.mydownload.httpdownload.handler.DownloadHandler;
@@ -80,7 +78,7 @@ public class DownloadThread extends Thread{
         byte[] bytes = new byte[mConfig.bufferSize];
         ///每次循环读取的内容长度，如为-1表示输入流已经读取结束
         int readLength;
-        while ((readLength = HttpDownloadUtil.inputStreamRead(bufferedInputStream, bytes)) != -1) {
+        while ((readLength = HttpDownloadUtil.bufferedInputStreamRead(bufferedInputStream, bytes)) != -1) {
             ///写入字节缓冲区内容到文件输出流
             HttpDownloadUtil.channelWrite(channel, bytes, readLength);
 

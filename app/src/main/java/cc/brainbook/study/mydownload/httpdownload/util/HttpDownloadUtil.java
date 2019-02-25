@@ -173,7 +173,7 @@ public class HttpDownloadUtil extends Thread {
      * @param bytes
      * @return
      */
-    public static int inputStreamRead(BufferedInputStream bufferedInputStream, byte[] bytes) {
+    public static int bufferedInputStreamRead(BufferedInputStream bufferedInputStream, byte[] bytes) {
         int result;
         try {
             result = bufferedInputStream.read(bytes);
