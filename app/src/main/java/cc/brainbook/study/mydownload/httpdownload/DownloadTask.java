@@ -101,7 +101,10 @@ public class DownloadTask {
                 }
             }
 
-            mHandler = new DownloadHandler(mFileInfo, mDownloadEvent, mOnProgressListener);
+            ///避免start时重复创建Handler对象
+            if (mHandler == null) {
+                mHandler = new DownloadHandler(mFileInfo, mDownloadEvent, mOnProgressListener);
+            }
 
             new DownloadThread(mConfig, mFileInfo, mHandler, mOnProgressListener != null).start();
         }
