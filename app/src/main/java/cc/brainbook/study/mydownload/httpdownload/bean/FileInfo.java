@@ -1,7 +1,7 @@
 package cc.brainbook.study.mydownload.httpdownload.bean;
 
 public class FileInfo {
-    public static final int FILE_STATUS_INIT = 0;
+    public static final int FILE_STATUS_NEW = 0;
     public static final int FILE_STATUS_START = 1;
     public static final int FILE_STATUS_STOP = 2;
     public static final int FILE_STATUS_COMPLETE = 3;
@@ -27,7 +27,7 @@ public class FileInfo {
     private String savePath;
 
     public FileInfo() {
-        this.status = FILE_STATUS_INIT;
+        this.status = FILE_STATUS_NEW;
     }
 
     public int getStatus() {
