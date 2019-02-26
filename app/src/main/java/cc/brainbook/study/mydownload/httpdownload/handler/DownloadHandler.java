@@ -32,7 +32,7 @@ public class DownloadHandler extends Handler {
     public void handleMessage(Message msg) {
         switch (msg.what) {
             case MSG_START:
-                Log.d(TAG, "DownloadHandler#handleMessage(): msg.what = MSG_START");
+                Log.d(TAG, "DownloadHandler# handleMessage(): msg.what = MSG_START");
 
                 ///下载事件接口DownloadEvent
                 if (mDownloadEvent != null) {
@@ -41,7 +41,7 @@ public class DownloadHandler extends Handler {
 
                 break;
             case MSG_STOP:
-                Log.d(TAG, "DownloadHandler#handleMessage(): msg.what = MSG_STOP");
+                Log.d(TAG, "DownloadHandler# handleMessage(): msg.what = MSG_STOP");
 
                 ///重置下载速度为0
                 if (mOnProgressListener != null) {
@@ -55,7 +55,7 @@ public class DownloadHandler extends Handler {
 
                 break;
             case MSG_COMPLETE:
-                Log.d(TAG, "DownloadHandler#handleMessage(): msg.what = MSG_COMPLETE");
+                Log.d(TAG, "DownloadHandler# handleMessage(): msg.what = MSG_COMPLETE");
 
                 ///重置下载速度为0
                 if (mOnProgressListener != null) {
@@ -69,7 +69,7 @@ public class DownloadHandler extends Handler {
 
                 break;
             case MSG_PROGRESS:
-                Log.d(TAG, "DownloadHandler#handleMessage(): msg.what = MSG_PROGRESS");
+                Log.d(TAG, "DownloadHandler# handleMessage(): msg.what = MSG_PROGRESS");
 
                 ///下载进度回调接口DownloadEvent
                 if (mOnProgressListener != null) {

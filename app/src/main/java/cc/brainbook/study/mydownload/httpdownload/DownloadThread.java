@@ -62,7 +62,7 @@ public class DownloadThread extends Thread{
         FileChannel channel = fileOutputStream.getChannel();
 
         ///发送消息：下载开始
-        Log.d(TAG, "DownloadThread#run(): ------- 发送消息：下载开始 -------");
+        Log.d(TAG, "DownloadThread# run(): ------- 发送消息：下载开始 -------");
         mHandler.obtainMessage(DownloadHandler.MSG_START).sendToTarget();
 
         ///设置下载开始时间
@@ -86,7 +86,7 @@ public class DownloadThread extends Thread{
             mFileInfo.setFinishedTimeMillis(System.currentTimeMillis() - startTimeMillis);
             ///更新已经下载完的总字节数
             mFileInfo.setFinishedBytes(mFileInfo.getFinishedBytes() + readLength);
-            Log.d(TAG, "DownloadThread#run(): thread name: " + Thread.currentThread().getName() +
+            Log.d(TAG, "DownloadThread# run(): thread name: " + Thread.currentThread().getName() +
                     ", finishedBytes: " + mFileInfo.getFinishedBytes() +
                     ", fileSize: " + mFileInfo.getFileSize() +
                     ", finishedTimeMillis: " + mFileInfo.getFinishedTimeMillis());
@@ -95,7 +95,7 @@ public class DownloadThread extends Thread{
                 ///控制更新下载进度的周期
                 if (System.currentTimeMillis() - currentTimeMillis > mConfig.progressInterval) {
                     ///发送消息：更新下载进度
-                    Log.d(TAG, "DownloadThread#run(): 发送消息：更新下载进度");
+                    Log.d(TAG, "DownloadThread# run(): 发送消息：更新下载进度");
                     long diffTimeMillis = System.currentTimeMillis() - currentTimeMillis;   ///下载进度的耗时（毫秒）
                     currentTimeMillis = System.currentTimeMillis();
                     long diffFinishedBytes = mFileInfo.getFinishedBytes() - currentFinishedBytes;  ///下载进度的下载字节数
@@ -107,7 +107,7 @@ public class DownloadThread extends Thread{
             ///停止下载线程
             if (mFileInfo.getStatus() == FileInfo.FILE_STATUS_STOP) {
                 ///发送消息：下载停止
-                Log.d(TAG, "DownloadThread#run(): ------- 发送消息：下载停止 -------");
+                Log.d(TAG, "DownloadThread# run(): ------- 发送消息：下载停止 -------");
                 mHandler.obtainMessage(DownloadHandler.MSG_STOP).sendToTarget();
 
                 return;
@@ -118,7 +118,7 @@ public class DownloadThread extends Thread{
         mFileInfo.setStatus(FileInfo.FILE_STATUS_COMPLETE);
 
         ///发送消息：下载完成
-        Log.d(TAG, "DownloadThread#run(): ------- 发送消息：下载完成 -------");
+        Log.d(TAG, "DownloadThread# run(): ------- 发送消息：下载完成 -------");
         mHandler.obtainMessage(DownloadHandler.MSG_COMPLETE).sendToTarget();
 
         ///关闭连接

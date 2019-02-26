@@ -164,7 +164,7 @@ public class HttpDownloadUtil extends Thread {
     }
 
     /**
-     * BufferedInputStream的读操作
+     * 缓冲输入流对象BufferedInputStream的读操作
      *
      * 注意：缓冲输入流对象比inputStream效率要高
      * https://blog.csdn.net/hfreeman2008/article/details/49174499

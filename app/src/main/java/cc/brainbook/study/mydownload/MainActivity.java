@@ -121,12 +121,12 @@ public class MainActivity extends AppCompatActivity implements DownloadEvent {
     /* ----------- [实现下载事件接口DownloadEvent] ----------- */
     @Override
     public void onStart(FileInfo fileInfo) {
-        Log.d(TAG, "MainActivity#onStart()#fileInfo: " + fileInfo);
+        Log.d(TAG, "MainActivity# onStart()# fileInfo: " + fileInfo);
     }
 
     @Override
     public void onStop(FileInfo fileInfo) {
-        Log.d(TAG, "MainActivity#onStop()#fileInfo: " + fileInfo);
+        Log.d(TAG, "MainActivity# onStop()# fileInfo: " + fileInfo);
     }
 
     @Override
@@ -144,7 +144,7 @@ public class MainActivity extends AppCompatActivity implements DownloadEvent {
         ///已经下载完的总字节数
         long finishedBytes = fileInfo.getFinishedBytes();
 
-        Log.d(TAG, "MainActivity#onComplete()#fileInfo: " + fileInfo);
+        Log.d(TAG, "MainActivity# onComplete()# fileInfo: " + fileInfo);
     }
 
 }

@@ -79,7 +79,7 @@ public class DownloadTask {
      * 开始下载
      */
     public void start() {
-        Log.d(TAG, "DownloadTask#start(): ");
+        Log.d(TAG, "DownloadTask# start(): ");
 
         ///避免重复启动下载线程
         if (mFileInfo.getStatus() != FileInfo.FILE_STATUS_START) {
@@ -114,7 +114,7 @@ public class DownloadTask {
      * 停止下载
      */
     public void stop() {
-        Log.d(TAG, "DownloadTask#stop(): ");
+        Log.d(TAG, "DownloadTask# stop(): ");
         if (mFileInfo.getStatus() == FileInfo.FILE_STATUS_START) {
             ///更新下载文件状态：下载停止
             mFileInfo.setStatus(FileInfo.FILE_STATUS_STOP);
