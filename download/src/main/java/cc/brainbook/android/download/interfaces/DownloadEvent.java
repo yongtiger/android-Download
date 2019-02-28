@@ -1,6 +1,6 @@
-package cc.brainbook.study.mydownload.httpdownload.interfaces;
+package cc.brainbook.android.download.interfaces;
 
-import cc.brainbook.study.mydownload.httpdownload.bean.FileInfo;
+import cc.brainbook.android.download.bean.FileInfo;
 
 /**
  * 下载事件接口

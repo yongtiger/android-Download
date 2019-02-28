@@ -1,4 +1,4 @@
-package cc.brainbook.study.mydownload.httpdownload.bean;
+package cc.brainbook.android.download.bean;
 
 public class FileInfo {
     public static final int FILE_STATUS_NEW = 0;

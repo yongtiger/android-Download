@@ -1,12 +1,12 @@
-package cc.brainbook.study.mydownload.httpdownload.handler;
+package cc.brainbook.android.download.handler;
 
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 
-import cc.brainbook.study.mydownload.httpdownload.interfaces.DownloadEvent;
-import cc.brainbook.study.mydownload.httpdownload.interfaces.OnProgressListener;
-import cc.brainbook.study.mydownload.httpdownload.bean.FileInfo;
+import cc.brainbook.android.download.interfaces.DownloadEvent;
+import cc.brainbook.android.download.interfaces.OnProgressListener;
+import cc.brainbook.android.download.bean.FileInfo;
 
 public class DownloadHandler extends Handler {
     private static final String TAG = "TAG";

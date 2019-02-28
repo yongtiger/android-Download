@@ -1,4 +1,4 @@
-package cc.brainbook.study.mydownload.httpdownload.exception;
+package cc.brainbook.android.download.exception;
 
 import android.support.annotation.IntDef;
 

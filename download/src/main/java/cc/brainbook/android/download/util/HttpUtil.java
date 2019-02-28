@@ -1,11 +1,13 @@
-package cc.brainbook.study.mydownload.httpdownload.util;
+package cc.brainbook.android.download.util;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.RandomAccessFile;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
@@ -14,9 +16,9 @@ import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 
-import cc.brainbook.study.mydownload.httpdownload.exception.DownloadException;
+import cc.brainbook.android.download.exception.DownloadException;
 
-public class HttpDownloadUtil extends Thread {
+public class HttpUtil extends Thread {
 
     /**
      * 由下载文件的URL网址建立网络连接
@@ -142,6 +144,23 @@ public class HttpDownloadUtil extends Thread {
     }
 
     /**
+     * 获得保存文件的输出流对象FileOutputStream
+     *
+     * @param saveFile
+     * @return
+     */
+    public static FileOutputStream getFileOutputStream(File saveFile) {
+        FileOutputStream fileOutputStream;
+        try {
+            fileOutputStream = new FileOutputStream(saveFile);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            throw new DownloadException(DownloadException.EXCEPTION_FILE_NOT_FOUND, "The file is not found.", e);
+        }
+        return fileOutputStream;
+    }
+
+    /**
      * 获得网络连接的缓冲输入流对象BufferedInputStream
      *
      * 注意：缓冲输入流对象比inputStream效率要高
@@ -166,7 +185,7 @@ public class HttpDownloadUtil extends Thread {
     /**
      * 缓冲输入流对象BufferedInputStream的读操作
      *
-     * 注意：缓冲输入流对象比inputStream效率要高
+     * 注意：缓冲输入流比inputStream效率要高
      * https://blog.csdn.net/hfreeman2008/article/details/49174499
      *
      * @param bufferedInputStream
@@ -185,20 +204,87 @@ public class HttpDownloadUtil extends Thread {
     }
 
     /**
-     * 获得保存文件的输出流对象
+     * 缓冲输出流对象BufferedOutputStream的写操作
+     *
+     * 注意：缓冲输出流比inputStream效率要高
+     * https://blog.csdn.net/hfreeman2008/article/details/49174499
+     *
+     * @param bufferedOutputStream
+     * @param bytes
+     * @param readLength
+     */
+    public static void bufferedOutputStreamWrite(BufferedOutputStream bufferedOutputStream, byte[] bytes, int readLength) {
+        try {
+            bufferedOutputStream.write(bytes, 0, readLength);
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw new DownloadException(DownloadException.EXCEPTION_IO_EXCEPTION, "IOException expected.", e);
+        }
+    }
+
+    /**
+     * 获得保存文件的随机访问文件对象RandomAccessFile
      *
      * @param saveFile
      * @return
      */
-    public static FileOutputStream getFileOutputStream(File saveFile) {
-        FileOutputStream fileOutputStream;
+    public static RandomAccessFile getRandomAccessFile(File saveFile) {
+        RandomAccessFile raf;
         try {
-            fileOutputStream = new FileOutputStream(saveFile);
+            raf = new RandomAccessFile(saveFile, "rwd");
         } catch (FileNotFoundException e) {
             e.printStackTrace();
             throw new DownloadException(DownloadException.EXCEPTION_FILE_NOT_FOUND, "The file is not found.", e);
         }
-        return fileOutputStream;
+        return raf;
+    }
+
+    /**
+     * 设置随机访问文件对象RandomAccessFile的文件长度
+     *
+     * @param randomAccessFile
+     * @param length
+     */
+    public static void randomAccessFileSetLength(RandomAccessFile randomAccessFile, long length) {
+        try {
+            randomAccessFile.setLength(length);
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw new DownloadException(DownloadException.EXCEPTION_IO_EXCEPTION, "IOException expected.", e);
+        }
+    }
+
+
+    /**
+     * 随机访问文件对象RandomAccessFile的seek操作
+     *
+     * @param randomAccessFile
+     * @param start
+     * @return
+     */
+    public static void randomAccessFileSeek(RandomAccessFile randomAccessFile, long start) {
+        try {
+            randomAccessFile.seek(start);
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw new DownloadException(DownloadException.EXCEPTION_IO_EXCEPTION, "IOException expected.", e);
+        }
+    }
+
+    /**
+     * 随机访问文件对象RandomAccessFile的写操作
+     *
+     * @param randomAccessFile
+     * @param bytes
+     * @param readLength
+     */
+    public static void randomAccessFileWrite(RandomAccessFile randomAccessFile, byte[] bytes, int readLength) {
+        try {
+            randomAccessFile.write(bytes, 0, readLength);
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw new DownloadException(DownloadException.EXCEPTION_IO_EXCEPTION, "IOException expected.", e);
+        }
     }
 
     /**

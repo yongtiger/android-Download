@@ -1,4 +1,4 @@
-package cc.brainbook.study.mydownload.httpdownload.config;
+package cc.brainbook.android.download.config;
 
 public class Config {
     /**

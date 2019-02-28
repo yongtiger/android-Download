@@ -1,4 +1,4 @@
-package cc.brainbook.study.mydownload.httpdownload.util;
+package cc.brainbook.android.download.util;
 
 import android.content.Context;
 import android.os.Environment;
@@ -6,7 +6,6 @@ import android.os.Environment;
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
-import java.net.HttpURLConnection;
 
 public class Util {
     /**
