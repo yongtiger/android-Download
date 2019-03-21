@@ -1,5 +1,6 @@
 package cc.brainbook.android.download;
 
+import android.text.TextUtils;
 import android.util.Log;
 
 import java.io.BufferedInputStream;
@@ -13,6 +14,8 @@ import cc.brainbook.android.download.config.Config;
 import cc.brainbook.android.download.handler.DownloadHandler;
 import cc.brainbook.android.download.util.HttpUtil;
 import cc.brainbook.android.download.util.Util;
+
+import static cc.brainbook.android.download.BuildConfig.DEBUG;
 
 public class DownloadThread extends Thread{
     private static final String TAG = "TAG";
@@ -46,7 +49,7 @@ public class DownloadThread extends Thread{
         HttpUtil.handleResponseCode(connection, HttpURLConnection.HTTP_OK);
 
         ///由网络连接获得文件名
-        if (mFileInfo.getFileName().isEmpty()) {
+        if (TextUtils.isEmpty(mFileInfo.getFileName())) {
             mFileInfo.setFileName(HttpUtil.getUrlFileName(connection));
         }
         ///由网络连接获得文件长度（建议用long类型，int类型最大为2GB）
@@ -62,7 +65,7 @@ public class DownloadThread extends Thread{
         FileChannel channel = fileOutputStream.getChannel();
 
         ///发送消息：下载开始
-        Log.d(TAG, "DownloadThread# run(): ------- 发送消息：下载开始 -------");
+        if (DEBUG) Log.d(TAG, "DownloadThread# run(): ------- 发送消息：下载开始 -------");
         mHandler.obtainMessage(DownloadHandler.MSG_START).sendToTarget();
 
         ///设置下载开始时间
@@ -86,7 +89,7 @@ public class DownloadThread extends Thread{
             mFileInfo.setFinishedTimeMillis(System.currentTimeMillis() - startTimeMillis);
             ///更新已经下载完的总字节数
             mFileInfo.setFinishedBytes(mFileInfo.getFinishedBytes() + readLength);
-            Log.d(TAG, "DownloadThread# run(): thread name: " + Thread.currentThread().getName() +
+            if (DEBUG) Log.d(TAG, "DownloadThread# run(): thread name: " + Thread.currentThread().getName() +
                     ", finishedBytes: " + mFileInfo.getFinishedBytes() +
                     ", fileSize: " + mFileInfo.getFileSize() +
                     ", finishedTimeMillis: " + mFileInfo.getFinishedTimeMillis());
@@ -95,7 +98,7 @@ public class DownloadThread extends Thread{
                 ///控制更新下载进度的周期
                 if (System.currentTimeMillis() - currentTimeMillis > mConfig.progressInterval) {
                     ///发送消息：更新下载进度
-                    Log.d(TAG, "DownloadThread# run(): 发送消息：更新下载进度");
+                    if (DEBUG) Log.d(TAG, "DownloadThread# run(): 发送消息：更新下载进度");
                     long diffTimeMillis = System.currentTimeMillis() - currentTimeMillis;   ///下载进度的耗时（毫秒）
                     currentTimeMillis = System.currentTimeMillis();
                     long diffFinishedBytes = mFileInfo.getFinishedBytes() - currentFinishedBytes;  ///下载进度的下载字节数
@@ -107,7 +110,7 @@ public class DownloadThread extends Thread{
             ///停止下载线程
             if (mFileInfo.getStatus() == FileInfo.FILE_STATUS_STOP) {
                 ///发送消息：下载停止
-                Log.d(TAG, "DownloadThread# run(): ------- 发送消息：下载停止 -------");
+                if (DEBUG) Log.d(TAG, "DownloadThread# run(): ------- 发送消息：下载停止 -------");
                 mHandler.obtainMessage(DownloadHandler.MSG_STOP).sendToTarget();
 
                 return;
@@ -118,7 +121,7 @@ public class DownloadThread extends Thread{
         mFileInfo.setStatus(FileInfo.FILE_STATUS_COMPLETE);
 
         ///发送消息：下载完成
-        Log.d(TAG, "DownloadThread# run(): ------- 发送消息：下载完成 -------");
+        if (DEBUG) Log.d(TAG, "DownloadThread# run(): ------- 发送消息：下载完成 -------");
         mHandler.obtainMessage(DownloadHandler.MSG_COMPLETE).sendToTarget();
 
         ///关闭连接
