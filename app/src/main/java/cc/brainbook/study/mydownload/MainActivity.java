@@ -84,20 +84,20 @@ public class MainActivity extends AppCompatActivity implements DownloadEvent {
     private void init() {
         ///创建下载任务类DownloadTask实例，并链式配置参数
         ///实例化DownloadTask时传入Context引用，方便操作（但要留意引起内存泄漏！）
-//        mDownloadTask = new DownloadTask(getApplicationContext())
-//                .setFileUrl("http://23.237.10.182/ljdy_v1.0.1.apk")
-//                .setFileName("ljdy_v1.0.1.apk")
-//                .setSavePath(DOWNLOAD_PATH)
-//                .setOnProgressListener(new OnProgressListener() {
-//                    @Override
-//                    public void onProgress(FileInfo fileInfo, long diffTimeMillis, long diffFinishedBytes) {
-//                        ///避免除0异常
-//                        int progress = fileInfo.getFinishedBytes() == 0 ? 0 : (int) (fileInfo.getFinishedBytes() * 100 / fileInfo.getFileSize());
-//                        long speed = diffFinishedBytes == 0 ? 0 : diffFinishedBytes / diffTimeMillis;
-//
-//                        mTextView.setText(progress + ", " + speed);
-//                    }
-//                });
+        mDownloadTask = new DownloadTask(getApplicationContext())
+                .setFileUrl("http://23.237.10.182/ljdy_v1.0.1.apk")
+                .setFileName("ljdy_v1.0.1.apk")
+                .setSavePath(DOWNLOAD_PATH)
+                .setOnProgressListener(new OnProgressListener() {
+                    @Override
+                    public void onProgress(FileInfo fileInfo, long diffTimeMillis, long diffFinishedBytes) {
+                        ///避免除0异常
+                        int progress = fileInfo.getFinishedBytes() == 0 ? 0 : (int) (fileInfo.getFinishedBytes() * 100 / fileInfo.getFileSize());
+                        long speed = diffFinishedBytes == 0 ? 0 : diffFinishedBytes / diffTimeMillis;
+
+                        mTextView.setText(progress + ", " + speed);
+                    }
+                });
 //        mDownloadTask = new DownloadTask(getApplicationContext())
 //                .setFileUrl("http://23.237.10.182/smqq.info.rar")
 //                .setFileName("smqq.info.rar")
@@ -112,20 +112,20 @@ public class MainActivity extends AppCompatActivity implements DownloadEvent {
 //                        mTextView.setText(progress + ", " + speed);
 //                    }
 //                });
-        mDownloadTask = new DownloadTask(getApplicationContext())
-                .setFileUrl("http://23.237.10.182/bbs.rar")
-                .setFileName("bbs.rar")
-                .setSavePath(DOWNLOAD_PATH)
-                .setOnProgressListener(new OnProgressListener() {
-                    @Override
-                    public void onProgress(FileInfo fileInfo, long diffTimeMillis, long diffFinishedBytes) {
-                        ///避免除0异常
-                        int progress = fileInfo.getFinishedBytes() == 0 ? 0 : (int) (fileInfo.getFinishedBytes() * 100 / fileInfo.getFileSize());
-                        long speed = diffFinishedBytes == 0 ? 0 : diffFinishedBytes / diffTimeMillis;
-
-                        mTextView.setText(progress + ", " + speed);
-                    }
-                });
+//        mDownloadTask = new DownloadTask(getApplicationContext())
+//                .setFileUrl("http://23.237.10.182/bbs.rar")
+//                .setFileName("bbs.rar")
+//                .setSavePath(DOWNLOAD_PATH)
+//                .setOnProgressListener(new OnProgressListener() {
+//                    @Override
+//                    public void onProgress(FileInfo fileInfo, long diffTimeMillis, long diffFinishedBytes) {
+//                        ///避免除0异常
+//                        int progress = fileInfo.getFinishedBytes() == 0 ? 0 : (int) (fileInfo.getFinishedBytes() * 100 / fileInfo.getFileSize());
+//                        long speed = diffFinishedBytes == 0 ? 0 : diffFinishedBytes / diffTimeMillis;
+//
+//                        mTextView.setText(progress + ", " + speed);
+//                    }
+//                });
 
     }
 
