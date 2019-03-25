@@ -85,8 +85,8 @@ public class MainActivity extends AppCompatActivity implements DownloadEvent {
         ///创建下载任务类DownloadTask实例，并链式配置参数
         ///实例化DownloadTask时传入Context引用，方便操作（但要留意引起内存泄漏！）
         mDownloadTask = new DownloadTask(getApplicationContext())
-                .setFileUrl("http://23.237.10.182/ljdy_v1.0.1.apk")
-                .setFileName("ljdy_v1.0.1.apk")
+                .setFileUrl("http://ljdy.tv/app/ljdy.apk")
+                .setFileName("ljdy.apk")
                 .setSavePath(DOWNLOAD_PATH)
                 .setOnProgressListener(new OnProgressListener() {
                     @Override

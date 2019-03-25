@@ -7,6 +7,8 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
+    <!-- [Android P(9.0) http网络请求的问题#Cleartext HTTP traffic not permitted]android:networkSecurityConfig -->
+    <!--https://www.jianshu.com/p/57047a84e559-->
     <application
         android:name=".application.MyApplication"
         android:allowBackup="false"
@@ -15,6 +17,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
+        android:networkSecurityConfig="@xml/network_security_config"
         tools:ignore="GoogleAppIndexingWarning">
         <activity android:name=".MainActivity">
             <intent-filter>
