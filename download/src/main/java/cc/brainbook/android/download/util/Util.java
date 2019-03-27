@@ -54,8 +54,6 @@ public class Util {
      * mkdir()和mkdirs()的区别：
      *     mkdir()  创建此抽象路径名指定的目录。如果父目录不存在则创建不成功。
      *     mkdirs() 创建此抽象路径名指定的目录，包括所有必需但不存在的父目录。
-     *
-     * @param dir
      */
     public static boolean mkdirs(File dir) {
         if (!dir.exists()) {

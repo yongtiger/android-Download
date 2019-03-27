@@ -109,11 +109,11 @@ public class DownloadTask {
                 mFileInfo.setSavePath(Util.getDefaultFilesDirPath(mContext));
             } else {
                 if (!Util.mkdirs(mFileInfo.getSavePath())) {
-//                    throw new DownloadException(DownloadException.EXCEPTION_SAVE_PATH_MKDIR, "The save path cannot be made: " + mFileInfo.getSavePath()));
+//                    throw new DownloadException(DownloadException.EXCEPTION_SAVE_PATH_MKDIR, "The file save path cannot be made: " + mFileInfo.getSavePath()));
                     ///更新下载文件状态：下载错误
                     mFileInfo.setStatus(FileInfo.FILE_STATUS_ERROR);
                     mHandler.obtainMessage(DownloadHandler.MSG_ERROR,
-                            new DownloadException(DownloadException.EXCEPTION_SAVE_PATH_MKDIR, "The save path cannot be made: " + mFileInfo.getSavePath()))
+                            new DownloadException(DownloadException.EXCEPTION_SAVE_PATH_MKDIR, "The file save path cannot be made: " + mFileInfo.getSavePath()))
                             .sendToTarget();
                     return;
                 }

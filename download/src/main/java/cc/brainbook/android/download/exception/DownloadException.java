@@ -14,7 +14,8 @@ public class DownloadException extends RuntimeException {
     public static final int EXCEPTION_NETWORK_UNKNOWN_HOST = 5;
     public static final int EXCEPTION_NETWORK_IO_EXCEPTION = 6;
     public static final int EXCEPTION_NETWORK_PROTOCOL_EXCEPTION = 7;
-    public static final int EXCEPTION_SAVE_PATH_MKDIR = 8;
+    public static final int EXCEPTION_NETWORK_RESPONSE_CODE_EXCEPTION = 8;
+    public static final int EXCEPTION_SAVE_PATH_MKDIR = 9;
 
     private int code;
 
@@ -57,6 +58,7 @@ public class DownloadException extends RuntimeException {
             EXCEPTION_NETWORK_UNKNOWN_HOST,
             EXCEPTION_NETWORK_IO_EXCEPTION,
             EXCEPTION_NETWORK_PROTOCOL_EXCEPTION,
+            EXCEPTION_NETWORK_RESPONSE_CODE_EXCEPTION,
             EXCEPTION_SAVE_PATH_MKDIR})
     @Retention(RetentionPolicy.SOURCE)
     public @interface ExceptionType {}
