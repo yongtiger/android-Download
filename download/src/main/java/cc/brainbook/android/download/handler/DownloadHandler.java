@@ -4,6 +4,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 
+import cc.brainbook.android.download.exception.DownloadException;
 import cc.brainbook.android.download.interfaces.DownloadEvent;
 import cc.brainbook.android.download.interfaces.OnProgressListener;
 import cc.brainbook.android.download.bean.FileInfo;
@@ -13,6 +14,7 @@ import static cc.brainbook.android.download.BuildConfig.DEBUG;
 public class DownloadHandler extends Handler {
     private static final String TAG = "TAG";
 
+    public static final int MSG_ERROR = -1;
     public static final int MSG_START = 1;
     public static final int MSG_STOP = 2;
     public static final int MSG_COMPLETE = 3;
@@ -81,7 +83,18 @@ public class DownloadHandler extends Handler {
                 }
 
                 break;
+            case MSG_ERROR:
+                if (DEBUG) Log.d(TAG, "DownloadHandler# handleMessage(): msg.what = MSG_ERROR");
+
+                ///下载错误回调接口DownloadEvent
+                if (mDownloadEvent != null) {
+                    DownloadException downloadException = (DownloadException) msg.obj;
+                    mDownloadEvent.onError(mFileInfo, downloadException);
+                }
+
+                break;
         }
+
         super.handleMessage(msg);
     }
 

@@ -82,6 +82,11 @@ public class DownloadTask {
     public void start() {
         if (DEBUG) Log.d(TAG, "DownloadTask# start(): ");
 
+        ///避免start时重复创建Handler对象
+        if (mHandler == null) {
+            mHandler = new DownloadHandler(mFileInfo, mDownloadEvent, mOnProgressListener);
+        }
+
         ///避免重复启动下载线程
         if (mFileInfo.getStatus() != FileInfo.FILE_STATUS_START) {
             ///更新下载文件状态：下载开始
@@ -92,19 +97,26 @@ public class DownloadTask {
 
             ///检验参数
             if (TextUtils.isEmpty(mFileInfo.getFileUrl())) {
-                throw new DownloadException(DownloadException.EXCEPTION_FILE_URL_NULL, "The file url cannot be null.");
+//                throw new DownloadException(DownloadException.EXCEPTION_FILE_URL_NULL, "The file url cannot be null.");
+                ///更新下载文件状态：下载错误
+                mFileInfo.setStatus(FileInfo.FILE_STATUS_ERROR);
+                mHandler.obtainMessage(DownloadHandler.MSG_ERROR,
+                        new DownloadException(DownloadException.EXCEPTION_FILE_URL_NULL, "The file url cannot be null."))
+                        .sendToTarget();
+                return;
             }
             if (TextUtils.isEmpty(mFileInfo.getSavePath())) {
                 mFileInfo.setSavePath(Util.getDefaultFilesDirPath(mContext));
             } else {
                 if (!Util.mkdirs(mFileInfo.getSavePath())) {
-                    throw new DownloadException(DownloadException.EXCEPTION_SAVE_PATH_MKDIR, "The save path cannot be made: " + mFileInfo.getSavePath());
+//                    throw new DownloadException(DownloadException.EXCEPTION_SAVE_PATH_MKDIR, "The save path cannot be made: " + mFileInfo.getSavePath()));
+                    ///更新下载文件状态：下载错误
+                    mFileInfo.setStatus(FileInfo.FILE_STATUS_ERROR);
+                    mHandler.obtainMessage(DownloadHandler.MSG_ERROR,
+                            new DownloadException(DownloadException.EXCEPTION_SAVE_PATH_MKDIR, "The save path cannot be made: " + mFileInfo.getSavePath()))
+                            .sendToTarget();
+                    return;
                 }
-            }
-
-            ///避免start时重复创建Handler对象
-            if (mHandler == null) {
-                mHandler = new DownloadHandler(mFileInfo, mDownloadEvent, mOnProgressListener);
             }
 
             new DownloadThread(mConfig, mFileInfo, mHandler, mOnProgressListener != null).start();

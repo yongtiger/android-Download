@@ -1,6 +1,7 @@
 package cc.brainbook.android.download.interfaces;
 
 import cc.brainbook.android.download.bean.FileInfo;
+import cc.brainbook.android.download.exception.DownloadException;
 
 /**
  * 下载事件接口
@@ -26,5 +27,12 @@ public interface DownloadEvent {
      * @param fileInfo
      */
     void onComplete(FileInfo fileInfo);
+
+    /**
+     * 下载错误的事件
+     *
+     * @param fileInfo
+     */
+    void onError(FileInfo fileInfo, DownloadException downloadException);
 
 }

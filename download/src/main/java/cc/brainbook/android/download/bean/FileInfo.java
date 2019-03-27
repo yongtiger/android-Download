@@ -1,6 +1,7 @@
 package cc.brainbook.android.download.bean;
 
 public class FileInfo {
+    public static final int FILE_STATUS_ERROR = -1;
     public static final int FILE_STATUS_NEW = 0;
     public static final int FILE_STATUS_START = 1;
     public static final int FILE_STATUS_STOP = 2;

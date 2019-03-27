@@ -45,7 +45,7 @@ public class HttpUtil extends Thread {
         } catch (MalformedURLException e) {
             ///当URL为null或无效网络连接协议时：java.net.MalformedURLException: Protocol not found
             e.printStackTrace();
-            throw new DownloadException(DownloadException.EXCEPTION_MALFORMED_URL, "The protocol is not found.", e);
+            throw new DownloadException(DownloadException.EXCEPTION_NETWORK_MALFORMED_URL, "The protocol is not found.", e);
         }
 
         HttpURLConnection connection;
@@ -56,17 +56,17 @@ public class HttpUtil extends Thread {
             ///     java.net.UnknownHostException: http://
             ///     java.net.UnknownHostException: Unable to resolve host "aaa": No address associated with hostname
             e.printStackTrace();
-            throw new DownloadException(DownloadException.EXCEPTION_UNKNOWN_HOST, "The host is unknown.", e);
+            throw new DownloadException(DownloadException.EXCEPTION_NETWORK_UNKNOWN_HOST, "The host is unknown.", e);
         } catch (IOException e) {
             e.printStackTrace();
-            throw new DownloadException(DownloadException.EXCEPTION_IO_EXCEPTION, "IOException expected.", e);
+            throw new DownloadException(DownloadException.EXCEPTION_NETWORK_IO_EXCEPTION, "IOException expected.", e);
         }
 
         try {
             connection.setRequestMethod(requestMethod);
         } catch (ProtocolException e) {
             e.printStackTrace();
-            throw new DownloadException(DownloadException.EXCEPTION_PROTOCOL_EXCEPTION, "ProtocolException expected.", e);
+            throw new DownloadException(DownloadException.EXCEPTION_NETWORK_PROTOCOL_EXCEPTION, "ProtocolException expected.", e);
         }
 
         connection.setConnectTimeout(connectTimeout);
@@ -90,7 +90,7 @@ public class HttpUtil extends Thread {
         } catch (IOException e) {
             ///当没有网络链接
             e.printStackTrace();
-            throw new DownloadException(DownloadException.EXCEPTION_IO_EXCEPTION, "IOException expected.", e);
+            throw new DownloadException(DownloadException.EXCEPTION_NETWORK_IO_EXCEPTION, "IOException expected.", e);
         }
     }
 
@@ -108,11 +108,11 @@ public class HttpUtil extends Thread {
             code = connection.getResponseCode();
         } catch (IOException e) {
             e.printStackTrace();
-            throw new DownloadException(DownloadException.EXCEPTION_IO_EXCEPTION, "IOException expected.", e);
+            throw new DownloadException(DownloadException.EXCEPTION_NETWORK_IO_EXCEPTION, "IOException expected.", e);
         }
 
         if (code != responseCode) {
-            throw new DownloadException(DownloadException.EXCEPTION_IO_EXCEPTION, "The connection response code is " + code);
+            throw new DownloadException(DownloadException.EXCEPTION_NETWORK_IO_EXCEPTION, "The connection response code is " + code);
         }
     }
 
@@ -176,7 +176,7 @@ public class HttpUtil extends Thread {
             inputStream = connection.getInputStream();
         } catch (IOException e) {
             e.printStackTrace();
-            throw new DownloadException(DownloadException.EXCEPTION_IO_EXCEPTION, "IOException expected.", e);
+            throw new DownloadException(DownloadException.EXCEPTION_NETWORK_IO_EXCEPTION, "HttpURLConnection#getInputStream(): IOException expected.", e);
         }
         ///由输入流对象创建缓冲输入流对象（比inputStream效率要高）
         return new BufferedInputStream(inputStream);
@@ -198,7 +198,7 @@ public class HttpUtil extends Thread {
             result = bufferedInputStream.read(bytes);
         } catch (IOException e) {
             e.printStackTrace();
-            throw new DownloadException(DownloadException.EXCEPTION_IO_EXCEPTION, "IOException expected.", e);
+            throw new DownloadException(DownloadException.EXCEPTION_FILE_IO_EXCEPTION, "BufferedInputStream#read(): IOException expected.", e);
         }
         return result;
     }
@@ -218,7 +218,7 @@ public class HttpUtil extends Thread {
             bufferedOutputStream.write(bytes, 0, readLength);
         } catch (IOException e) {
             e.printStackTrace();
-            throw new DownloadException(DownloadException.EXCEPTION_IO_EXCEPTION, "IOException expected.", e);
+            throw new DownloadException(DownloadException.EXCEPTION_FILE_IO_EXCEPTION, "BufferedOutputStream#write(): IOException expected.", e);
         }
     }
 
@@ -250,7 +250,7 @@ public class HttpUtil extends Thread {
             randomAccessFile.setLength(length);
         } catch (IOException e) {
             e.printStackTrace();
-            throw new DownloadException(DownloadException.EXCEPTION_IO_EXCEPTION, "IOException expected.", e);
+            throw new DownloadException(DownloadException.EXCEPTION_FILE_IO_EXCEPTION, "RandomAccessFile#setLength(): IOException expected.", e);
         }
     }
 
@@ -267,7 +267,7 @@ public class HttpUtil extends Thread {
             randomAccessFile.seek(start);
         } catch (IOException e) {
             e.printStackTrace();
-            throw new DownloadException(DownloadException.EXCEPTION_IO_EXCEPTION, "IOException expected.", e);
+            throw new DownloadException(DownloadException.EXCEPTION_FILE_IO_EXCEPTION, "RandomAccessFile#seek(): IOException expected.", e);
         }
     }
 
@@ -283,7 +283,7 @@ public class HttpUtil extends Thread {
             randomAccessFile.write(bytes, 0, readLength);
         } catch (IOException e) {
             e.printStackTrace();
-            throw new DownloadException(DownloadException.EXCEPTION_IO_EXCEPTION, "IOException expected.", e);
+            throw new DownloadException(DownloadException.EXCEPTION_FILE_IO_EXCEPTION, "RandomAccessFile#write(): IOException expected.", e);
         }
     }
 
@@ -301,7 +301,7 @@ public class HttpUtil extends Thread {
             channel.write(buf);
         } catch (IOException e) {
             e.printStackTrace();
-            throw new DownloadException(DownloadException.EXCEPTION_IO_EXCEPTION, "IOException expected.", e);
+            throw new DownloadException(DownloadException.EXCEPTION_FILE_IO_EXCEPTION, "FileChannel#write(): IOException expected.", e);
         }
     }
 }
