@@ -36,7 +36,7 @@ public class DownloadHandler extends Handler {
     public void handleMessage(Message msg) {
         switch (msg.what) {
             case MSG_START:
-                if (DEBUG) Log.d(TAG, "DownloadHandler# handleMessage(): msg.what = MSG_START");
+                if (DEBUG) Log.d(TAG, "DownloadHandler# handleMessage()# msg.what = MSG_START");
 
                 ///下载事件接口DownloadEvent
                 if (mDownloadEvent != null) {
@@ -45,7 +45,7 @@ public class DownloadHandler extends Handler {
 
                 break;
             case MSG_STOP:
-                if (DEBUG) Log.d(TAG, "DownloadHandler# handleMessage(): msg.what = MSG_STOP");
+                if (DEBUG) Log.d(TAG, "DownloadHandler# handleMessage()# msg.what = MSG_STOP");
 
                 ///重置下载速度为0
                 if (mOnProgressListener != null) {
@@ -59,7 +59,7 @@ public class DownloadHandler extends Handler {
 
                 break;
             case MSG_COMPLETE:
-                if (DEBUG) Log.d(TAG, "DownloadHandler# handleMessage(): msg.what = MSG_COMPLETE");
+                if (DEBUG) Log.d(TAG, "DownloadHandler# handleMessage()# msg.what = MSG_COMPLETE");
 
                 ///重置下载速度为0
                 if (mOnProgressListener != null) {
@@ -73,7 +73,7 @@ public class DownloadHandler extends Handler {
 
                 break;
             case MSG_PROGRESS:
-                if (DEBUG) Log.d(TAG, "DownloadHandler# handleMessage(): msg.what = MSG_PROGRESS");
+                if (DEBUG) Log.d(TAG, "DownloadHandler# handleMessage()# msg.what = MSG_PROGRESS");
 
                 ///下载进度回调接口DownloadEvent
                 if (mOnProgressListener != null) {
@@ -84,11 +84,15 @@ public class DownloadHandler extends Handler {
 
                 break;
             case MSG_ERROR:
-                if (DEBUG) Log.d(TAG, "DownloadHandler# handleMessage(): msg.what = MSG_ERROR");
+                DownloadException downloadException = (DownloadException) msg.obj;
+                if (downloadException.getCause() == null) {
+                    if (DEBUG) Log.d(TAG, "DownloadHandler# handleMessage()# msg.what = MSG_ERROR" + downloadException.getMessage());
+                } else {
+                    if (DEBUG) Log.d(TAG, "DownloadHandler# handleMessage()# msg.what = MSG_ERROR" + downloadException.getMessage() + "\n" + downloadException.getCause().getMessage());
+                }
 
                 ///下载错误回调接口DownloadEvent
                 if (mDownloadEvent != null) {
-                    DownloadException downloadException = (DownloadException) msg.obj;
                     mDownloadEvent.onError(mFileInfo, downloadException);
                 }
 

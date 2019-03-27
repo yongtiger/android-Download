@@ -80,7 +80,7 @@ public class DownloadTask {
      * 开始下载
      */
     public void start() {
-        if (DEBUG) Log.d(TAG, "DownloadTask# start(): ");
+        if (DEBUG) Log.d(TAG, "DownloadTask# start()# ");
 
         ///避免start时重复创建Handler对象
         if (mHandler == null) {
@@ -97,7 +97,6 @@ public class DownloadTask {
 
             ///检验参数
             if (TextUtils.isEmpty(mFileInfo.getFileUrl())) {
-//                throw new DownloadException(DownloadException.EXCEPTION_FILE_URL_NULL, "The file url cannot be null.");
                 ///更新下载文件状态：下载错误
                 mFileInfo.setStatus(FileInfo.FILE_STATUS_ERROR);
                 mHandler.obtainMessage(DownloadHandler.MSG_ERROR,
@@ -109,7 +108,6 @@ public class DownloadTask {
                 mFileInfo.setSavePath(Util.getDefaultFilesDirPath(mContext));
             } else {
                 if (!Util.mkdirs(mFileInfo.getSavePath())) {
-//                    throw new DownloadException(DownloadException.EXCEPTION_SAVE_PATH_MKDIR, "The file save path cannot be made: " + mFileInfo.getSavePath()));
                     ///更新下载文件状态：下载错误
                     mFileInfo.setStatus(FileInfo.FILE_STATUS_ERROR);
                     mHandler.obtainMessage(DownloadHandler.MSG_ERROR,
@@ -127,7 +125,7 @@ public class DownloadTask {
      * 停止下载
      */
     public void stop() {
-        if (DEBUG) Log.d(TAG, "DownloadTask# stop(): ");
+        if (DEBUG) Log.d(TAG, "DownloadTask# stop()# ");
         if (mFileInfo.getStatus() == FileInfo.FILE_STATUS_START) {
             ///更新下载文件状态：下载停止
             mFileInfo.setStatus(FileInfo.FILE_STATUS_STOP);
