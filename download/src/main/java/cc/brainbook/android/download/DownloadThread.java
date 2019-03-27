@@ -13,7 +13,7 @@ import cc.brainbook.android.download.bean.FileInfo;
 import cc.brainbook.android.download.config.Config;
 import cc.brainbook.android.download.exception.DownloadException;
 import cc.brainbook.android.download.handler.DownloadHandler;
-import cc.brainbook.android.download.util.HttpUtil;
+import cc.brainbook.android.download.util.HttpDownloadUtil;
 import cc.brainbook.android.download.util.Util;
 
 import static cc.brainbook.android.download.BuildConfig.DEBUG;
@@ -47,27 +47,34 @@ public class DownloadThread extends Thread {
 
         try {
             ///由下载文件的URL网址建立网络连接
-            connection = HttpUtil.openConnection(mFileInfo.getFileUrl(), mConfig.connectTimeout);
+            connection = HttpDownloadUtil.openConnection(mFileInfo.getFileUrl(), mConfig.connectTimeout);
 
             ///发起网络连接
-            HttpUtil.connect(connection);
+            HttpDownloadUtil.connect(connection);
 
             ///处理网络连接的响应码，如果网络连接connection的响应码为200，则开始下载过程，否则抛出异常
-            HttpUtil.handleResponseCode(connection, HttpURLConnection.HTTP_OK);
+            HttpDownloadUtil.handleResponseCode(connection, HttpURLConnection.HTTP_OK);
+
+            ///获得网络连接的缓冲输入流对象BufferedInputStream
+            bufferedInputStream = HttpDownloadUtil.getBufferedInputStream(connection);
 
             ///由网络连接获得文件名
             if (TextUtils.isEmpty(mFileInfo.getFileName())) {
-                mFileInfo.setFileName(HttpUtil.getUrlFileName(connection));
+                mFileInfo.setFileName(HttpDownloadUtil.getUrlFileName(connection));
             }
             ///由网络连接获得文件长度（建议用long类型，int类型最大为2GB）
             mFileInfo.setFileSize(connection.getContentLength());
 
-            ///获得网络连接的缓冲输入流对象BufferedInputStream
-            bufferedInputStream = HttpUtil.getBufferedInputStream(connection);
+            ///获得保存文件
+            File saveFile = new File(mFileInfo.getSavePath(), mFileInfo.getFileName());
+
+            ///如果保存文件存在则删除
+            if (saveFile.exists()) {
+                if (saveFile.delete());
+            }
 
             ///获得保存文件的输出流对象
-            File saveFile = new File(mFileInfo.getSavePath(), mFileInfo.getFileName());
-            fileOutputStream = HttpUtil.getFileOutputStream(saveFile);
+            fileOutputStream = HttpDownloadUtil.getFileOutputStream(saveFile);
             ///由文件的输出流对象获得FileChannel对象
             channel = fileOutputStream.getChannel();
 
@@ -88,9 +95,9 @@ public class DownloadThread extends Thread {
             byte[] bytes = new byte[mConfig.bufferSize];
             ///每次循环读取的内容长度，如为-1表示输入流已经读取结束
             int readLength;
-            while ((readLength = HttpUtil.bufferedInputStreamRead(bufferedInputStream, bytes)) != -1) {
+            while ((readLength = HttpDownloadUtil.bufferedInputStreamRead(bufferedInputStream, bytes)) != -1) {
                 ///写入字节缓冲区内容到文件输出流
-                HttpUtil.channelWrite(channel, bytes, readLength);
+                HttpDownloadUtil.channelWrite(channel, bytes, readLength);
 
                 ///更新已经下载完的总耗时（毫秒）
                 mFileInfo.setFinishedTimeMillis(System.currentTimeMillis() - startTimeMillis);

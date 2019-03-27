@@ -86,9 +86,9 @@ public class DownloadHandler extends Handler {
             case MSG_ERROR:
                 DownloadException downloadException = (DownloadException) msg.obj;
                 if (downloadException.getCause() == null) {
-                    if (DEBUG) Log.d(TAG, "DownloadHandler# handleMessage()# msg.what = MSG_ERROR" + downloadException.getMessage());
+                    if (DEBUG) Log.d(TAG, "DownloadHandler# handleMessage()# msg.what = MSG_ERROR: " + downloadException.getMessage());
                 } else {
-                    if (DEBUG) Log.d(TAG, "DownloadHandler# handleMessage()# msg.what = MSG_ERROR" + downloadException.getMessage() + "\n" + downloadException.getCause().getMessage());
+                    if (DEBUG) Log.d(TAG, "DownloadHandler# handleMessage()# msg.what = MSG_ERROR: " + downloadException.getMessage() + "\n" + downloadException.getCause().getMessage());
                 }
 
                 ///下载错误回调接口DownloadEvent

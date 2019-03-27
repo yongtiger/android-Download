@@ -4,8 +4,6 @@ import android.content.Context;
 import android.text.TextUtils;
 import android.util.Log;
 
-import java.io.File;
-
 import cc.brainbook.android.download.bean.FileInfo;
 import cc.brainbook.android.download.config.Config;
 import cc.brainbook.android.download.exception.DownloadException;
@@ -16,6 +14,11 @@ import cc.brainbook.android.download.util.Util;
 
 import static cc.brainbook.android.download.BuildConfig.DEBUG;
 
+/**
+ * 下载任务类DownloadTask（使用Android原生HttpURLConnection）
+ *
+ * 注意：建议在Service中使用！如在Activity/Fragment中使用，则DownloadTask的生命周期与Activity/Fragment绑定，将随Activity/Fragment销毁而终止（如屏幕反转将导致终止下载任务）
+ */
 public class DownloadTask {
     private static final String TAG = "TAG";
 
@@ -126,12 +129,10 @@ public class DownloadTask {
      */
     public void stop() {
         if (DEBUG) Log.d(TAG, "DownloadTask# stop()# ");
+
         if (mFileInfo.getStatus() == FileInfo.FILE_STATUS_START) {
             ///更新下载文件状态：下载停止
             mFileInfo.setStatus(FileInfo.FILE_STATUS_STOP);
-
-            ///删除下载文件
-            new File(mFileInfo.getSavePath() + mFileInfo.getFileName()).delete();
         }
     }
 

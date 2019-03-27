@@ -18,7 +18,7 @@ import java.nio.channels.FileChannel;
 
 import cc.brainbook.android.download.exception.DownloadException;
 
-public class HttpUtil extends Thread {
+public class HttpDownloadUtil {
 
     /**
      * 由下载文件的URL网址建立网络连接
