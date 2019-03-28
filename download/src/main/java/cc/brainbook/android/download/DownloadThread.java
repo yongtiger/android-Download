@@ -141,10 +141,9 @@ public class DownloadThread extends Thread {
             if (DEBUG) Log.d(TAG, "DownloadThread# run()# ------- 发送消息：下载完成 -------");
             mHandler.obtainMessage(DownloadHandler.MSG_COMPLETE).sendToTarget();
 
-        } catch (DownloadException downloadException) {
-            ///更新下载文件状态：下载错误
-            mFileInfo.setStatus(FileInfo.FILE_STATUS_ERROR);
-            mHandler.obtainMessage(DownloadHandler.MSG_ERROR, downloadException).sendToTarget();
+        } catch (Exception e) {
+            ///发送消息：下载错误
+            mHandler.obtainMessage(DownloadHandler.MSG_ERROR, e).sendToTarget();
         } finally {
             ///关闭连接
             if (connection != null) {

@@ -100,8 +100,7 @@ public class DownloadTask {
 
             ///检验参数
             if (TextUtils.isEmpty(mFileInfo.getFileUrl())) {
-                ///更新下载文件状态：下载错误
-                mFileInfo.setStatus(FileInfo.FILE_STATUS_ERROR);
+                ///发送消息：下载错误
                 mHandler.obtainMessage(DownloadHandler.MSG_ERROR,
                         new DownloadException(DownloadException.EXCEPTION_FILE_URL_NULL, "The file url cannot be null."))
                         .sendToTarget();
@@ -111,8 +110,7 @@ public class DownloadTask {
                 mFileInfo.setSavePath(Util.getDefaultFilesDirPath(mContext));
             } else {
                 if (!Util.mkdirs(mFileInfo.getSavePath())) {
-                    ///更新下载文件状态：下载错误
-                    mFileInfo.setStatus(FileInfo.FILE_STATUS_ERROR);
+                    ///发送消息：下载错误
                     mHandler.obtainMessage(DownloadHandler.MSG_ERROR,
                             new DownloadException(DownloadException.EXCEPTION_SAVE_PATH_MKDIR, "The file save path cannot be made: " + mFileInfo.getSavePath()))
                             .sendToTarget();

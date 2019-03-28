@@ -32,7 +32,8 @@ public interface DownloadEvent {
      * 下载错误的事件
      *
      * @param fileInfo
+     * @param e
      */
-    void onError(FileInfo fileInfo, DownloadException downloadException);
+    void onError(FileInfo fileInfo, Exception e);
 
 }
