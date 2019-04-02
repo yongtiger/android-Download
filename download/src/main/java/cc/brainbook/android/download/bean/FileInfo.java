@@ -1,42 +1,46 @@
 package cc.brainbook.android.download.bean;
 
+import cc.brainbook.android.download.enumeration.DownloadState;
+
 public class FileInfo {
-    public static final int FILE_STATUS_ERROR = -1;
-    public static final int FILE_STATUS_NEW = 0;
-    public static final int FILE_STATUS_START = 1;
-    public static final int FILE_STATUS_STOP = 2;
-    public static final int FILE_STATUS_COMPLETE = 3;
-
     /**
-     * 设置停止标志（并且声明为volatile），https://blog.csdn.net/changlei_shennan/article/details/44039905
+     * 状态标志
      */
-    private volatile int status;
+    private DownloadState state;
 
     /**
-     * 已经下载完的总耗时（毫秒）
-     */
-    private long finishedTimeMillis;
-
-    /**
-     * 已经下载完的总字节数
+     * 已经完成的总字节数
      */
     private long finishedBytes;
 
+    /**
+     * 已经完成的总耗时（毫秒）
+     */
+    private long finishedTimeMillis;
+
+    private long createdTimeMillis;
+    private long updatedTimeMillis;
+
+    /**
+     * 以下四个决定了下载文件的唯一性，即ID
+     */
     private String fileUrl;
     private String fileName;
     private long fileSize;
     private String savePath;
 
     public FileInfo() {
-        this.status = FILE_STATUS_NEW;
+        state = DownloadState.NEW;
+        createdTimeMillis = System.currentTimeMillis();
+        updatedTimeMillis = System.currentTimeMillis();
     }
 
-    public int getStatus() {
-        return status;
+    public DownloadState getState() {
+        return state;
     }
 
-    public void setStatus(int status) {
-        this.status = status;
+    public void setState(DownloadState state) {
+        this.state = state;
     }
 
     public long getFinishedTimeMillis() {
@@ -53,6 +57,22 @@ public class FileInfo {
 
     public void setFinishedBytes(long finishedBytes) {
         this.finishedBytes = finishedBytes;
+    }
+
+    public long getCreatedTimeMillis() {
+        return createdTimeMillis;
+    }
+
+    public void setCreatedTimeMillis(long createdTimeMillis) {
+        this.createdTimeMillis = createdTimeMillis;
+    }
+
+    public long getUpdatedTimeMillis() {
+        return updatedTimeMillis;
+    }
+
+    public void setUpdatedTimeMillis(long updatedTimeMillis) {
+        this.updatedTimeMillis = updatedTimeMillis;
     }
 
     public String getFileUrl() {
@@ -90,9 +110,11 @@ public class FileInfo {
     @Override
     public String toString() {
         return "FileInfo{" +
-                "status=" + status +
+                "state=" + state +
                 ", finishedTimeMillis=" + finishedTimeMillis +
                 ", finishedBytes=" + finishedBytes +
+                ", createdTimeMillis=" + createdTimeMillis +
+                ", updatedTimeMillis=" + updatedTimeMillis +
                 ", fileUrl='" + fileUrl + '\'' +
                 ", fileName='" + fileName + '\'' +
                 ", fileSize=" + fileSize +

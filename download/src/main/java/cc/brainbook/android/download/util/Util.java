@@ -32,12 +32,15 @@ public class Util {
     /**
      * 获得缺省的下载目录
      *
+     * 先尝试获取应用的外部文件目录getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)
+     * 如果不存在（比如SD卡不存在）则返回应用的文件目录getFilesDir()
+     *
      * @param context
      * @return
      */
     public static File getDefaultFilesDir(Context context) {
         ///https://juejin.im/entry/5951d0096fb9a06bb8745f75
-        File downloadDir = context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS);
+        final File downloadDir = context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS);
         if (downloadDir != null) {
             return downloadDir;
         } else {
@@ -54,6 +57,8 @@ public class Util {
      * mkdir()和mkdirs()的区别：
      *     mkdir()  创建此抽象路径名指定的目录。如果父目录不存在则创建不成功。
      *     mkdirs() 创建此抽象路径名指定的目录，包括所有必需但不存在的父目录。
+     *
+     * @param dir
      */
     public static boolean mkdirs(File dir) {
         if (!dir.exists()) {
