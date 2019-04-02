@@ -20,44 +20,23 @@ import cc.brainbook.android.download.util.Util;
 import static cc.brainbook.android.download.BuildConfig.DEBUG;
 
 /**
- * 多线程可断点续传的下载任务类DownloadTask（使用Android原生HttpURLConnection）
+ * 下载任务类DownloadTask（使用Android原生HttpURLConnection）
  *
  *
  * 特点：
  *
- * 1）多线程
- * 采用的线程池是java提供的四中线程池中的缓存线程池Executors.newCachedThreadPool()，特点是如果现有线程没有可用的，
- * 则创建一个新线程并添加到池中，如果有线程可用，则复用现有的线程。如果60 秒钟未被使用的线程则会被回收。
- * 因此，长时间保持空闲的线程池不会使用任何内存资源。
- * 用户可通过DownloadTask#setThreadCount(int threadCount)设置，设置下载线程数量以后，系统会优化调整最终获得的下载线程数量
- * 以保证每个线程下载的文件长度不少于MINIMUM_DOWNLOAD_PART_SIZE（5MB），极端情况下，如果文件总长度小于5MB，则只分配一个线程///??????
- * 注意：建议不要太大，取值范围不超过50！否则系统可能不再分配线程，造成其余下载线程仍处于初始化状态而不能进入运行状态
+ * 1）链式set方法设置
  *
- * 2）断点续传
- * 下载运行时按暂停或关闭Activity时，自动保存断点，下次点击开始下载按钮（或开启Activity后点击开始下载按钮）自动从断点处继续下载
- * 当点击停止按钮，线程信息（即断点）从数据库删除，同时删除下载文件
- * 注意：Activity销毁后应在onDestroy()调用下载暂停来保存线程信息（即断点）到数据库
+ * 2）丰富的下载监听器参数
+ * 如获取下载进度progress和下载网速speed，获取实时的下载耗时，也可实现分段详细显示下载进度条
  *
- * 3）链式set方法设置
- *
- * 4）丰富的下载监听器参数
- * 如获取下载进度progress和下载网速speed，获取实时的下载耗时（暂停期间不计！），也可实现分段详细显示下载进度条
- *
- * 5）使用Handler状态机方式，方便修改状态变化逻辑，比如：
+ * 4）使用Handler状态机方式，方便修改状态变化逻辑，比如：
  *      初始化后可以立即下载
  *      暂停/成功/错误状态时，可以停止下载进行清空数据库下载记录、下载文件等
  *      成功后可以清空后再重新下载
  *      。。。
  *
- * 6）可以断网后自动恢复下载
- * 如果下载过程中断开网络连接，抛出异常DownloadException.EXCEPTION_NETWORK_FILE_IO_EXCEPTION
- * 用户自行编写触发再次连接的代码（比如轮询、或监听网络状态变化）
- *
- * 7）采用相比其它定时器（Timer、Handler+Thread）高效的Handler+Runnable实现定时查询和更新下载进度
- *
- * 8）优化了每个线程的长度至少为MINIMUM_DOWNLOAD_PART_SIZE，最多下载线程数量为MAXIMUM_DOWNLOAD_PARTS
- *
- * 9）消除了内存泄漏
+ * 5）消除了内存泄漏
  *
  *
  * 使用：
@@ -74,8 +53,6 @@ import static cc.brainbook.android.download.BuildConfig.DEBUG;
  * 默认为应用的外部下载目录context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)，如果系统无SD卡返回应用的文件目录getFilesDir()
  * 参考：Util.getDefaultFilesDir(Context context)
  * 可通过DownloadTask#setSavePath(String savePath)设置
- * 1.5）初始化（必须）
- * 可选择是否初始化后立即下载
  *
  * 2）设置进度监听（可选）
  * fileInfo用于获取下载进度progress和下载网速speed

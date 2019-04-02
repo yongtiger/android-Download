@@ -5,8 +5,13 @@ import cc.brainbook.android.download.enumeration.DownloadState;
 public class FileInfo {
     /**
      * 状态标志
+     *
+     * 注意：必须声明为volatile（是一种轻量级的synchronized）
+     *
+     * https://www.jianshu.com/p/31e5ab16935f
+     * https://blog.csdn.net/changlei_shennan/article/details/44039905
      */
-    private DownloadState state;
+    private volatile DownloadState state;
 
     /**
      * 已经完成的总字节数
