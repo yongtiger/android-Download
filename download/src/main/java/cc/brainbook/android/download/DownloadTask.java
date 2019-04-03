@@ -1,14 +1,10 @@
 package cc.brainbook.android.download;
 
 import android.content.Context;
-import android.os.Handler;
-import android.os.Looper;
 import android.text.TextUtils;
 import android.util.Log;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.concurrent.CyclicBarrier;
 
 import cc.brainbook.android.download.bean.FileInfo;
 import cc.brainbook.android.download.config.Config;
@@ -30,13 +26,12 @@ import static cc.brainbook.android.download.BuildConfig.DEBUG;
  * 2）丰富的下载监听器参数
  * 如获取下载进度progress和下载网速speed，获取实时的下载耗时，也可实现分段详细显示下载进度条
  *
- * 4）使用Handler状态机方式，方便修改状态变化逻辑，比如：
- *      初始化后可以立即下载
- *      暂停/成功/错误状态时，可以停止下载进行清空数据库下载记录、下载文件等
+ * 3）使用Handler状态机方式，方便修改状态变化逻辑，比如：
+ *      成功/错误状态时，可以停止下载进行清空下载文件等
  *      成功后可以清空后再重新下载
  *      。。。
  *
- * 5）消除了内存泄漏
+ * 4）消除了内存泄漏
  *
  *
  * 使用：
@@ -59,13 +54,12 @@ import static cc.brainbook.android.download.BuildConfig.DEBUG;
  *      ///避免除0异常
  *      int progress = fileInfo.getFinishedBytes() == 0 ? 0 : (int) (fileInfo.getFinishedBytes() * 100 / fileInfo.getFileSize());
  *      long speed = diffFinishedBytes == 0 ? 0 : diffFinishedBytes / diffTimeMillis;
- * 也可用fileInfo.getFinishedTimeMillis()获取实时的下载耗时（暂停期间不计！）
- * threadInfos提供了全部线程信息（比如，可实现分段详细显示下载进度条）
+ * 也可用fileInfo.getFinishedTimeMillis()获取实时的下载耗时
  *
  * 3）下载事件接口DownloadListener（可选）
- *      void onStateChanged(FileInfo fileInfo, List<ThreadInfo> threadInfos, DownloadState state);
- *      void onProgress(FileInfo fileInfo, List<ThreadInfo> threadInfos, long diffTimeMillis, long diffFinishedBytes);
- *      void onError(FileInfo fileInfo, List<ThreadInfo> threadInfos, Exception e);
+ *      void onStateChanged(FileInfo fileInfo, DownloadState state);
+ *      void onProgress(FileInfo fileInfo, long diffTimeMillis, long diffFinishedBytes);
+ *      void onError(FileInfo fileInfo, Exception e);
  *
  */
 public class DownloadTask {
