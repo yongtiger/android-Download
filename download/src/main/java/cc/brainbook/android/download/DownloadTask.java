@@ -155,6 +155,9 @@ public class DownloadTask {
                 break;
 
             case FAILED:        ///下载失败（FAILED）后开始下载start()
+                ///重置下载
+                reset();
+
                 ///执行下载过程
                 innerStart();
 
@@ -209,10 +212,6 @@ public class DownloadTask {
                     mDownloadListener);
 
         }
-
-        ///重置文件信息的已经完成的总字节数、总耗时（毫秒）
-//        mFileInfo.setFinishedBytes(0);
-//        mFileInfo.setFinishedTimeMillis(0);
 
         ///检查文件网址URL
         ///如果为null或空字符串则报错后退出
