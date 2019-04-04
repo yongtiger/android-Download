@@ -80,11 +80,12 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         Log.d(TAG, "============== MainActivity# onDestroy()# ==============");
+        super.onDestroy();
 
         ///避免内存泄漏
-        mDownloadTask.setDownloadListener(null);
-
-        super.onDestroy();
+        if (mDownloadTask != null) {
+            mDownloadTask.setDownloadListener(null);
+        }
     }
 
     public void init() {
