@@ -84,13 +84,13 @@ public class DownloadHandler extends Handler {
             case MSG_FAILED:
                 if (DEBUG) Log.d(TAG, "DownloadHandler# handleMessage()# msg.what = MSG_FAILED");
 
+                ///更改状态为下载失败（FAILED）
+                changeStateToFailed();
+
                 ///错误的回调接口
                 if (mDownloadListener != null) {
                     mDownloadListener.onError(mFileInfo, (Exception) msg.obj);
                 }
-
-                ///更改状态为下载失败（FAILED）
-                changeStateToFailed();
 
                 break;
         }
