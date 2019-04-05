@@ -65,7 +65,6 @@ public class MainActivity extends AppCompatActivity {
                     init();
 
                 } else {
-
                     // permission denied, boo! Disable the
                     // functionality that depends on this permission.
                 }
