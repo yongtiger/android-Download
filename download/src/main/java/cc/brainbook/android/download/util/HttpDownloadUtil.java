@@ -197,6 +197,7 @@ public class HttpDownloadUtil {
         ///由输入流对象创建缓冲输入流对象（比inputStream效率要高）
         return new BufferedInputStream(inputStream);
     }
+
     /**
      * 获得读出文件的输入流对象FileInputStream
      *
