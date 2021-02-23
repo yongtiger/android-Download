@@ -225,7 +225,7 @@ public class DownloadTask {
                 ///发送消息：下载失败
                 mHandler.obtainMessage(DownloadHandler.MSG_FAILED,
                         new DownloadException(DownloadException.EXCEPTION_FILE_MKDIR_EXCEPTION,
-                                mContext.getString(R.string.msg_the_file_cannot_be_deleted,  mFileInfo.getSavePath())))
+                                mContext.getString(R.string.msg_the_file_save_path_cannot_be_made,  mFileInfo.getSavePath())))
                         .sendToTarget();
                 return;
             } else if (!Util.isCanWrite(mFileInfo.getSavePath())) {
