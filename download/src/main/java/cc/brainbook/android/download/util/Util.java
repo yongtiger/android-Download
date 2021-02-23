@@ -49,6 +49,7 @@ public class Util {
             return context.getFilesDir();
         }
     }
+    @NonNull
     public static String getDefaultFilesDirPath(@NonNull Context context) {
         return getDefaultFilesDir(context).getAbsolutePath();
     }
