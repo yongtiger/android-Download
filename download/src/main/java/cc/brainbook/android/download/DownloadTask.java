@@ -75,7 +75,6 @@ public class DownloadTask {
      * https://blog.csdn.net/changlei_shennan/article/details/44039905
      */
     private Context mContext;
-
     private FileInfo mFileInfo;
     private Config mConfig = new Config();
     private DownloadHandler mHandler;

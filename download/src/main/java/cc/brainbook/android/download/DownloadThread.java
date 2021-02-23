@@ -23,7 +23,6 @@ public class DownloadThread extends Thread {
     private static final String TAG = "TAG";
 
     private Context mContext;
-
     private Config mConfig;
     private FileInfo mFileInfo;
     private DownloadHandler mHandler;
