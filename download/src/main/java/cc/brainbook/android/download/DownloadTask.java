@@ -211,7 +211,7 @@ public class DownloadTask {
         if (TextUtils.isEmpty(mFileInfo.getFileUrl())) {
             ///发送消息：下载错误
             mHandler.obtainMessage(DownloadHandler.MSG_FAILED,
-                    new DownloadException(DownloadException.EXCEPTION_FILE_URL_NULL, "The file url cannot be null."))
+                    new DownloadException(DownloadException.EXCEPTION_FILE_URL_NULL, mContext.getString(R.string.msg_the_file_url_cannot_be_null)))
                     .sendToTarget();
             return;
         }
