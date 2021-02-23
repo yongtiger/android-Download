@@ -23,8 +23,6 @@ import cc.brainbook.android.download.listener.DownloadListener;
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "TAG";
 
-    public static final String DOWNLOAD_PATH = Environment.getExternalStorageDirectory().getAbsolutePath() + "/Downloads/";
-
     public TextView mTextView;
 
     private DownloadTask mDownloadTask;
@@ -94,9 +92,9 @@ public class MainActivity extends AppCompatActivity {
         ///创建下载任务类DownloadTask实例，并链式配置参数
         ///实例化DownloadTask时传入Context引用，方便操作（但要留意引起内存泄漏！）
         mDownloadTask = new DownloadTask(getApplicationContext())
-                .setFileUrl("http://ljdy.tv/test/ljdy.apk")
+                .setFileUrl("http://ljdy.tv/test/ljdy_api_16.apk")
 //                .setFileName("ljdy.apk")
-                .setSavePath(DOWNLOAD_PATH)
+                .setSavePath(getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath())
                 .setDownloadListener(downloadListener);
     }
 
@@ -205,8 +203,8 @@ public class MainActivity extends AppCompatActivity {
                     ///如果下载过程中断开网络连接，抛出异常DownloadException.EXCEPTION_NETWORK_FILE_IO_EXCEPTION
                     Log.d(TAG, "MainActivity# onError()# !!!!!! DownloadException.EXCEPTION_NETWORK_FILE_IO_EXCEPTION !!!!!! Message: " + e.getMessage());
 
-                    ///开启Wifi网络设置页面
-                    startWifiSettingsActivity();
+//                    ///开启Wifi网络设置页面
+//                    startWifiSettingsActivity();
                 } else {
 
                 }

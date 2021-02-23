@@ -3,6 +3,8 @@ package cc.brainbook.android.download.util;
 import android.content.Context;
 import android.os.Environment;
 
+import androidx.annotation.NonNull;
+
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
@@ -38,7 +40,7 @@ public class Util {
      * @param context
      * @return
      */
-    public static File getDefaultFilesDir(Context context) {
+    public static File getDefaultFilesDir(@NonNull Context context) {
         ///https://juejin.im/entry/5951d0096fb9a06bb8745f75
         final File downloadDir = context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS);
         if (downloadDir != null) {
@@ -47,7 +49,7 @@ public class Util {
             return context.getFilesDir();
         }
     }
-    public static String getDefaultFilesDirPath(Context context) {
+    public static String getDefaultFilesDirPath(@NonNull Context context) {
         return getDefaultFilesDir(context).getAbsolutePath();
     }
 
@@ -60,7 +62,7 @@ public class Util {
      *
      * @param dir
      */
-    public static boolean mkdirs(File dir) {
+    public static boolean mkdirs(@NonNull File dir) {
         if (!dir.exists()) {
             if (!dir.mkdirs()) {
                 return false;
@@ -71,7 +73,7 @@ public class Util {
     public static boolean mkdirs(String path) {
         return mkdirs(new File(path));
     }
-    public static boolean mkdir(File dir) {
+    public static boolean mkdir(@NonNull File dir) {
         if (!dir.exists()) {
             if (!dir.mkdir()) {
                 return false;

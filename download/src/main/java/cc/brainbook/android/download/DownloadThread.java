@@ -1,5 +1,6 @@
 package cc.brainbook.android.download;
 
+import android.content.Context;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -21,13 +22,17 @@ import static cc.brainbook.android.download.BuildConfig.DEBUG;
 public class DownloadThread extends Thread {
     private static final String TAG = "TAG";
 
+    private Context mContext;
+
     private Config mConfig;
     private FileInfo mFileInfo;
     private DownloadHandler mHandler;
 
-    DownloadThread(Config config,
+    DownloadThread(Context context,
+                   Config config,
                    FileInfo fileInfo,
                    DownloadHandler handler) {
+        this.mContext = context;
         this.mConfig = config;
         this.mFileInfo = fileInfo;
         this.mHandler = handler;
@@ -62,9 +67,10 @@ public class DownloadThread extends Thread {
                 ///注意：connection.getContentLength()最大为2GB，使用connection.getHeaderField("Content-Length")可以突破2GB限制
                 ///http://szuwest.github.io/tag/android-download.html
 //            mFileInfo.setFileSize(connection.getContentLength());
-                mFileInfo.setFileSize(Long.valueOf(connection.getHeaderField("Content-Length")));
+                mFileInfo.setFileSize(Long.parseLong(connection.getHeaderField("Content-Length")));
                 if (mFileInfo.getFileSize() <= 0) {
-                    throw new DownloadException(DownloadException.EXCEPTION_FILE_DELETE_EXCEPTION, "The file size is not valid: " + mFileInfo.getFileSize());
+                    throw new DownloadException(DownloadException.EXCEPTION_FILE_DELETE_EXCEPTION,
+                            mContext.getString(R.string.msg_the_ile_size_is_not_valid, mFileInfo.getFileSize()));
                 }
             }
 
@@ -76,7 +82,8 @@ public class DownloadThread extends Thread {
             ///如果保存文件存在则删除
             if (saveFile.exists()) {
                 if (!saveFile.delete()) {
-                    throw new DownloadException(DownloadException.EXCEPTION_FILE_DELETE_EXCEPTION, "The file cannot be deleted: " + saveFile);
+                    throw new DownloadException(DownloadException.EXCEPTION_FILE_DELETE_EXCEPTION,
+                            mContext.getString(R.string.msg_the_file_cannot_be_deleted, saveFile.getAbsolutePath()));
                 }
             }
 
@@ -99,6 +106,8 @@ public class DownloadThread extends Thread {
             ///每次循环读取的内容长度，如为-1表示输入流已经读取结束
             int readLength;
             while ((readLength = HttpDownloadUtil.bufferedInputStreamRead(bufferedInputStream, bytes)) != -1) {
+                if (DEBUG) Log.d(TAG, "DownloadThread# run()# bufferedInputStreamRead# ------------ ");
+
                 ///写入字节缓冲区内容到文件输出流
                 HttpDownloadUtil.channelWriteByteBuffer(channel, bytes, readLength);
 

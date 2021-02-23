@@ -1,5 +1,7 @@
 package cc.brainbook.android.download.util;
 
+import androidx.annotation.NonNull;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -33,6 +35,7 @@ public class HttpDownloadUtil {
      * @param connectTimeout
      * @return
      */
+    @NonNull
     public static HttpURLConnection openConnection(String fileUrl, int connectTimeout) {
         return openConnection(fileUrl, "GET", connectTimeout);
     }
@@ -44,6 +47,7 @@ public class HttpDownloadUtil {
      * @throws MalformedURLException
      * @throws IOException
      */
+    @NonNull
     public static HttpURLConnection openConnection(String fileUrl, String requestMethod, int connectTimeout) {
         URL url;
         try {
@@ -91,7 +95,7 @@ public class HttpDownloadUtil {
      *
      * @param connection
      */
-    public static void connect(HttpURLConnection connection) {
+    public static void connect(@NonNull HttpURLConnection connection) {
         try {
             ///Operations that depend on being connected, like getInputStream, getOutputStream, etc, will implicitly perform the connection, if necessary.
             ///https://stackoverflow.com/questions/16122999/java-urlconnection-when-do-i-need-to-use-the-connect-method
@@ -111,7 +115,7 @@ public class HttpDownloadUtil {
      * @param connection
      * @param responseCode
      */
-    public static void handleResponseCode(HttpURLConnection connection, int responseCode) {
+    public static void handleResponseCode(@NonNull HttpURLConnection connection, int responseCode) {
         int code;
         try {
             code = connection.getResponseCode();
@@ -131,6 +135,7 @@ public class HttpDownloadUtil {
      * @param connection
      * @return
      */
+    @NonNull
     public static String getUrlFileName(HttpURLConnection connection) {
         String filename = "";
         if (connection == null) return filename;
@@ -168,7 +173,7 @@ public class HttpDownloadUtil {
      * @param connection
      * @return
      */
-    public static InputStream getInputStream(HttpURLConnection connection) {
+    public static InputStream getInputStream(@NonNull HttpURLConnection connection) {
         ///获得网络连接connection的输入流对象
         InputStream inputStream;
         try {
@@ -190,6 +195,7 @@ public class HttpDownloadUtil {
      * @param connection
      * @return
      */
+    @NonNull
     public static BufferedInputStream getBufferedInputStream(HttpURLConnection connection) {
         ///获得网络连接connection的输入流对象
         final InputStream inputStream = getInputStream(connection);
@@ -241,6 +247,7 @@ public class HttpDownloadUtil {
      * @param outputFile
      * @return
      */
+    @NonNull
     public static BufferedOutputStream getBufferedOutputStream(File outputFile) {
         ///获得写入文件的输出流对象FileOutputStream
         final FileOutputStream fileOutputStream = getFileOutputStream(outputFile);
@@ -261,7 +268,7 @@ public class HttpDownloadUtil {
      * @param bytes
      * @return
      */
-    public static int bufferedInputStreamRead(BufferedInputStream bufferedInputStream, byte[] bytes) {
+    public static int bufferedInputStreamRead(@NonNull BufferedInputStream bufferedInputStream, byte[] bytes) {
         int result;
         try {
             result = bufferedInputStream.read(bytes);
@@ -283,7 +290,7 @@ public class HttpDownloadUtil {
      * @param bytes
      * @param readLength
      */
-    public static void bufferedOutputStreamWrite(BufferedOutputStream bufferedOutputStream, byte[] bytes, int readLength) {
+    public static void bufferedOutputStreamWrite(@NonNull BufferedOutputStream bufferedOutputStream, byte[] bytes, int readLength) {
         try {
             bufferedOutputStream.write(bytes, 0, readLength);
         } catch (IOException e) {
@@ -317,7 +324,7 @@ public class HttpDownloadUtil {
      * @param randomAccessFile
      * @param length
      */
-    public static void randomAccessFileSetLength(RandomAccessFile randomAccessFile, long length) {
+    public static void randomAccessFileSetLength(@NonNull RandomAccessFile randomAccessFile, long length) {
         try {
             randomAccessFile.setLength(length);
         } catch (IOException e) {
@@ -333,7 +340,7 @@ public class HttpDownloadUtil {
      * @param start
      * @return
      */
-    public static void randomAccessFileSeek(RandomAccessFile randomAccessFile, long start) {
+    public static void randomAccessFileSeek(@NonNull RandomAccessFile randomAccessFile, long start) {
         try {
             randomAccessFile.seek(start);
         } catch (IOException e) {
@@ -349,7 +356,7 @@ public class HttpDownloadUtil {
      * @param bytes
      * @param readLength
      */
-    public static void randomAccessFileRead(RandomAccessFile randomAccessFile, byte[] bytes, int readLength) {
+    public static void randomAccessFileRead(@NonNull RandomAccessFile randomAccessFile, byte[] bytes, int readLength) {
         try {
             randomAccessFile.read(bytes, 0, readLength);
         } catch (IOException e) {
@@ -365,7 +372,7 @@ public class HttpDownloadUtil {
      * @param bytes
      * @param writeLength
      */
-    public static void randomAccessFileWrite(RandomAccessFile randomAccessFile, byte[] bytes, int writeLength) {
+    public static void randomAccessFileWrite(@NonNull RandomAccessFile randomAccessFile, byte[] bytes, int writeLength) {
         try {
             randomAccessFile.write(bytes, 0, writeLength);
         } catch (IOException e) {
@@ -381,7 +388,7 @@ public class HttpDownloadUtil {
      * @param bytes
      * @param readLength
      */
-    public static void channelReadByteBuffer(FileChannel channel, byte[] bytes, int readLength) {
+    public static void channelReadByteBuffer(@NonNull FileChannel channel, byte[] bytes, int readLength) {
         final ByteBuffer buf = wrap(bytes, 0, readLength);
         try {
             channel.read(buf);
@@ -398,7 +405,7 @@ public class HttpDownloadUtil {
      * @param bytes
      * @param writeLength
      */
-    public static void channelWriteByteBuffer(FileChannel channel, byte[] bytes, int writeLength) {
+    public static void channelWriteByteBuffer(@NonNull FileChannel channel, byte[] bytes, int writeLength) {
         final ByteBuffer buffer = wrap(bytes, 0, writeLength);
         try {
             channel.write(buffer);
@@ -419,7 +426,7 @@ public class HttpDownloadUtil {
      * @param bytes
      * @param readLength
      */
-    public static void channelReadMappedByteBuffer(FileChannel channel, byte[] bytes, int readLength) {
+    public static void channelReadMappedByteBuffer(@NonNull FileChannel channel, byte[] bytes, int readLength) {
         try {
             final MappedByteBuffer buffer = channel.map(FileChannel.MapMode.READ_ONLY, 0, readLength);
             buffer.get(bytes);
@@ -440,7 +447,7 @@ public class HttpDownloadUtil {
      * @param bytes
      * @param writeLength
      */
-    public static void channelWriteMappedByteBuffer(FileChannel channel, byte[] bytes, int writeLength, long start) {
+    public static void channelWriteMappedByteBuffer(@NonNull FileChannel channel, byte[] bytes, int writeLength, long start) {
         try {
             final MappedByteBuffer buffer = channel.map(FileChannel.MapMode.READ_WRITE, start, writeLength);
             buffer.put(bytes);

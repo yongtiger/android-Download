@@ -225,20 +225,22 @@ public class DownloadTask {
             if (!Util.mkdirs(mFileInfo.getSavePath())) {
                 ///发送消息：下载失败
                 mHandler.obtainMessage(DownloadHandler.MSG_FAILED,
-                        new DownloadException(DownloadException.EXCEPTION_FILE_MKDIR_EXCEPTION, "The file save path cannot be made: " + mFileInfo.getSavePath()))
+                        new DownloadException(DownloadException.EXCEPTION_FILE_MKDIR_EXCEPTION,
+                                mContext.getString(R.string.msg_the_file_cannot_be_deleted,  mFileInfo.getSavePath())))
                         .sendToTarget();
                 return;
             } else if (!Util.isCanWrite(mFileInfo.getSavePath())) {
                 ///发送消息：下载失败
                 mHandler.obtainMessage(DownloadHandler.MSG_FAILED,
-                        new DownloadException(DownloadException.EXCEPTION_FILE_WRITE_EXCEPTION, "The file save path is not writable: " + mFileInfo.getSavePath()))
+                        new DownloadException(DownloadException.EXCEPTION_FILE_WRITE_EXCEPTION,
+                                mContext.getString(R.string.msg_the_file_save_path_is_not_writable,  mFileInfo.getSavePath())))
                         .sendToTarget();
                 return;
             }
         }
 
         ///创建下载线程并启动
-        new DownloadThread(mConfig, mFileInfo, mHandler).start();
+        new DownloadThread(mContext, mConfig, mFileInfo, mHandler).start();
 
         ///发送消息：下载开始
         mHandler.obtainMessage(DownloadHandler.MSG_STARTED).sendToTarget();
